@@ -13,6 +13,10 @@
 #include "core/models.hpp"
 #include "core/shader.hpp"
 
+#include "animation/bone.hpp"
+#include "animation/bone_mesh.hpp"
+#include "memory"
+
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -25,7 +29,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 3.0f, 3.0f));
+Camera camera(glm::vec3(2.0f, 4.0f, 15.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -81,13 +85,31 @@ int main() {
 
   // load models
   // -----------
-  Model ourModel("/home/shailesh/Projects/Study/Visualization/assets/work.obj");
+  Model ourModel("/home/shailesh/Projects/Study/Visualization/assets/bone.obj");
 
   // draw in wireframe
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+  auto bones = Skeleton();
 
-  Grid grid(50);
+  bones.addJoint("start", -1);
+  bones.addJoint("first", 0);
+  bones.addJoint("second", 1);
+
+  BoneMesh bone = BoneMesh();
+
+  bones.setTransforms(
+      0, glm::angleAxis(glm::radians(00.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+      glm::vec3(0.0f));
+  bones.setTransforms(
+      1, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 2.0f, 0.0f)),
+      glm::vec3(2.0f));
+  bones.setTransforms(2, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.3f));
+  // bones.setTransforms(0, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.0f));
+  // bones.setTransforms(1, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(2.0f));
+  // bones.setTransforms(2, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.3f));
+
+  Grid grid(10, 1);
   // render loop
   // -----------
   while (!glfwWindowShouldClose(window)) {
@@ -109,6 +131,10 @@ int main() {
     // don't forget to enable shader before setting uniforms
     ourShader.use();
 
+    // bone.Draw(ourShader);
+
+    bones.drawJoints(ourShader, bone);
+
     // view/projection transformations
     glm::mat4 projection =
         glm::perspective(glm::radians(camera.Zoom),
@@ -119,11 +145,11 @@ int main() {
 
     // render the loaded model
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+    model = glm::translate(model, glm::vec3(1.0f, 2.0f, -3.0f));
     model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
     ourShader.setMat4("model", model);
     ourShader.setVec3("objectColor", glm::vec3(0.8f));
-    // ourModel.Draw(ourShader);
+    ourModel.Draw(ourShader);
 
     grid.Draw(ourShader);
 
