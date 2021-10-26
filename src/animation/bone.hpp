@@ -5,6 +5,7 @@
 #include "../core/shader.hpp"
 #include "../core/transform.hpp"
 #include "./bone_mesh.hpp"
+#include "./frame.hpp"
 
 #include "glm/gtx/string_cast.hpp"
 #include "iostream"
@@ -25,8 +26,7 @@ struct Joint {
     localTransform = glm::translate(localTransform, transform.position);
     localTransform *= glm::toMat4(transform.rotation);
     if (parent != -1) {
-      localTransform =
-          glm::scale(localTransform, glm::vec3(1.f));
+      localTransform = glm::scale(localTransform, glm::vec3(1.f));
     }
     // TODO: Add this scaling factor if necessary.
     return localTransform;
@@ -58,23 +58,34 @@ std::ostream &operator<<(std::ostream &os, Joint &j) {
 struct Skeleton {
   Skeleton() { joints = std::vector<Joint>{}; }
 
+  void log() { std::cout << "There are " << joints.size() << " joints.\n"; }
+
   void drawJoints(Shader &shader, BoneMesh &joint_model) {
     // Assumes that root is at 0th position
     for (int i = 1; i < joints.size(); i++) {
       // auto world = joints[i].worldTransform;
+
+      // std::cout << joints[i];
 
       // Get the parent joint information.
       auto parent = joints[joints[i].parent];
       // auto towards =
       //     joints[i].transform.getGlobalPosition(joints[i].worldTransform);
 
-      auto towards = joints[i].transform.worldPosition;
+      // auto towards = joints[i].transform.worldPosition;
+      auto towards = glm::vec3(joints[i].worldTransform[3][0],
+                               joints[i].worldTransform[3][1],
+                               joints[i].worldTransform[3][2]);
       // Find the direction from parents forward towards the that point.
       // auto rotate = glm::mat4_cast(glm::quatLookAt(towards, up));
       auto rotate = glm::mat4_cast(parent.transform.fromTo(towards));
 
+      auto parentP =
+          glm::vec3(parent.worldTransform[3][0], parent.worldTransform[3][1],
+                    parent.worldTransform[3][2]);
       auto translate =
-          glm::translate(glm::mat4(1.f), parent.transform.worldPosition);
+          // glm::translate(glm::mat4(1.f), parent.transform.worldPosition);
+          glm::translate(glm::mat4(1.f), parentP);
 
       auto scale = glm::scale(
           glm::mat4(1.f), glm::vec3(glm::length(joints[i].transform.position)));
@@ -101,26 +112,42 @@ struct Skeleton {
     active_joint->transform.position = joint_offset;
     active_joint->transform.rotation = joint_orientation;
 
-    auto local = active_joint->getLocalToParent();
-    if (active_joint->getParent() == -1) {
-      active_joint->worldTransform = local;
-      active_joint->transform.worldRotation = active_joint->transform.rotation;
-      active_joint->transform.worldPosition = active_joint->transform.position;
-      std::cout << "Rotation: "
-                << glm::to_string(active_joint->transform.getUp()) << "\n";
-    } else {
-      Joint parent = joints[active_joint->getParent()];
-      glm::mat4 pWorld = parent.worldTransform;
-      glm::mat4 world = pWorld * local;
-      active_joint->worldTransform = world;
-      active_joint->transform.worldRotation =
-          parent.transform.worldRotation * active_joint->transform.rotation;
+    // auto local = active_joint->getLocalToParent();
+    // if (active_joint->getParent() == -1) {
+    //   active_joint->worldTransform = local;
+    //   active_joint->transform.worldRotation =
+    //   active_joint->transform.rotation; active_joint->transform.worldPosition
+    //   = active_joint->transform.position;
+    //   // std::cout << "Rotation: "
+    //   //           << glm::to_string(active_joint->transform.getUp()) <<
+    //   "\n";
+    // } else {
+    //   Joint parent = joints[active_joint->getParent()];
+    //   glm::mat4 pWorld = parent.worldTransform;
+    //   glm::mat4 world = pWorld * local;
+    //   active_joint->worldTransform = world;
+    //   active_joint->transform.worldRotation =
+    //       parent.transform.worldRotation * active_joint->transform.rotation;
 
-      active_joint->transform.worldPosition =
-          glm::vec3(world[3][0], world[3][1], world[3][2]);
+    //   active_joint->transform.worldPosition =
+    //       glm::vec3(world[3][0], world[3][1], world[3][2]);
+    // }
+
+    // std::cout << *active_joint;
+  }
+
+  void setTransforms(Frame frame) {
+    // Get the frame for each joint.
+    auto active = &joints[0];
+    active->worldTransform = frame.getJointTransform(0);
+    for (int i = 1; i < joints.size(); i++) {
+      auto active = &joints[i];
+      auto data = frame.getJointTransform(i);
+      auto world = frame.getJointTransform(i - 1) * data;
+      active->worldTransform = world;
+      // active_joint->transform.worldPosition =
+      //     glm::vec3(world[3][0], world[3][1], world[3][2]);
     }
-
-    std::cout << *active_joint;
   }
 
 private:

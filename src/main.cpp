@@ -13,9 +13,10 @@
 #include "core/models.hpp"
 #include "core/shader.hpp"
 
-#include "animation/bone.hpp"
-#include "animation/bone_mesh.hpp"
+#include "animation/animation.hpp"
 #include "memory"
+
+#include <utility>
 
 #include <iostream>
 
@@ -90,24 +91,45 @@ int main() {
   // draw in wireframe
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  auto bones = Skeleton();
+  // auto bones = Skeleton();
 
-  bones.addJoint("start", -1);
-  bones.addJoint("first", 0);
-  bones.addJoint("second", 1);
+  // bones.addJoint("start", -1);
+  // bones.addJoint("first", 0);
+  // bones.addJoint("second", 1);
 
-  BoneMesh bone = BoneMesh();
+  // BoneMesh bone = BoneMesh();
 
-  bones.setTransforms(
-      0, glm::angleAxis(glm::radians(00.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-      glm::vec3(0.0f));
-  bones.setTransforms(
-      1, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 2.0f, 0.0f)),
-      glm::vec3(2.0f));
-  bones.setTransforms(2, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.3f));
-  // bones.setTransforms(0, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.0f));
-  // bones.setTransforms(1, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(2.0f));
-  // bones.setTransforms(2, glm::quat(1.0f, 0.0f, 0.0f, 0.0f), glm::vec3(0.3f));
+  Animation anim = Animation();
+
+  std::vector<std::pair<std::string, int>> data = {
+      std::make_pair("start", -1),
+      std::make_pair("first", 0),
+      std::make_pair("second", 1),
+  };
+
+  anim.addJoints(data);
+
+  std::vector<std::vector<glm::quat>> rotations;
+  for (int i = 0; i < 360; i++) {
+    std::vector<glm::quat> rotation;
+    rotation.push_back(glm::angleAxis(glm::radians(float(1)), glm::vec3(0.f, 1.f, 0.f)));
+    // rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
+    rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
+    // rotation.push_back(glm::angleAxis(glm::radians(float(1)), glm::vec3(0.f, 1.f, 0.f)));
+    rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
+    rotations.push_back(rotation);
+  }
+
+  std::vector<glm::vec3> positions;
+  positions.push_back(glm::vec3(0.0));
+  positions.push_back(glm::vec3(1.0));
+  positions.push_back(glm::vec3(0.5));
+
+  for(auto &rotation: rotations) {
+    anim.addFrame(rotation, positions);
+  }
+
+  anim.stats();
 
   Grid grid(10, 1);
   // render loop
@@ -133,7 +155,8 @@ int main() {
 
     // bone.Draw(ourShader);
 
-    bones.drawJoints(ourShader, bone);
+    // bones.drawJoints(ourShader, bone);
+    anim.play(ourShader);
 
     // view/projection transformations
     glm::mat4 projection =
