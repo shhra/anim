@@ -42,32 +42,21 @@ public:
 
     Frame data = Frame();
     // Adds the frame using given position and rotations.
+    auto translate = glm::vec3(0.f);
     if (frames.size() == 0) {
-      skeleton.setTransforms(0, glm::quat(1.0, 0.0, 0.0, 0.0), position[0]);
-
-      // Calculate root transform
-      auto transform = glm::mat4(1);
-      // This is here because of poor design. Need to address
-      // offsets and initial data in some elegant way
-      auto translate = glm::translate(glm::mat4(1), position[0]);
-      auto rotate = glm::toMat4(rotations[0]);
-      transform = rotate * translate;
-
-      data.addFrameData(transform);
-      for (int i = 1; i < rotations.size(); i++) {
+      for (int i = 0; i < rotations.size(); i++) {
         skeleton.setTransforms(i, glm::quat(1.0, 0.0, 0.0, 0.0), position[i]);
-        auto transform = glm::mat4(1);
-        auto translate = glm::translate(glm::mat4(1), position[i]);
+        translate += position[i];
+        skeleton.setWorldPosition(i, translate);
+        auto translate = glm::mat4(1);
         auto rotate = glm::toMat4(rotations[i]);
-        transform = rotate * translate;
-        // transform = data.getJointTransform(i - 1) * transform;
-
+        auto transform = rotate * translate;
         data.addFrameData(transform);
       }
     } else {
       for (int i = 0; i < rotations.size(); i++) {
         auto transform = glm::toMat4(rotations[i]);
-        transform = frames[frames.size() - 1].getJointTransform(i) * transform;
+        transform = transform * frames[frames.size() - 1].getJointTransform(i);
         data.addFrameData(transform);
       }
     }

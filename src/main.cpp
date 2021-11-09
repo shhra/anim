@@ -3,7 +3,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -13,7 +12,7 @@
 #include "core/models.hpp"
 #include "core/shader.hpp"
 
-#include "animation/animation.hpp"
+// #include "animation/animation.hpp"
 #include "memory"
 
 #include <utility>
@@ -30,7 +29,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(2.0f, 4.0f, 15.0f));
+Camera camera(10);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -99,23 +98,29 @@ int main() {
 
   // BoneMesh bone = BoneMesh();
 
-  Animation anim = Animation();
+  // Animation anim = Animation();
 
   std::vector<std::pair<std::string, int>> data = {
       std::make_pair("start", -1),
       std::make_pair("first", 0),
       std::make_pair("second", 1),
+      std::make_pair("third", 2),
   };
 
-  anim.addJoints(data);
+  // anim.addJoints(data);
 
   std::vector<std::vector<glm::quat>> rotations;
   for (int i = 0; i < 360; i++) {
     std::vector<glm::quat> rotation;
-    rotation.push_back(glm::angleAxis(glm::radians(float(1)), glm::vec3(0.f, 1.f, 0.f)));
+    rotation.push_back(
+        glm::angleAxis(glm::radians(float(0)), glm::vec3(0.f, 1.f, 0.f)));
+    rotation.push_back(
+        glm::angleAxis(glm::radians(float(0)), glm::vec3(0.f, 1.f, 0.f)));
+    rotation.push_back(
+        glm::angleAxis(glm::radians(float(1)), glm::vec3(1.f, 0.f, 0.f)));
     // rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
-    rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
-    // rotation.push_back(glm::angleAxis(glm::radians(float(1)), glm::vec3(0.f, 1.f, 0.f)));
+    // rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
+    // rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
     rotation.push_back(glm::quat(1.0, 0.0, 0.0, 0.0));
     rotations.push_back(rotation);
   }
@@ -124,12 +129,13 @@ int main() {
   positions.push_back(glm::vec3(0.0));
   positions.push_back(glm::vec3(1.0));
   positions.push_back(glm::vec3(0.5));
+  positions.push_back(glm::vec3(0.2));
 
-  for(auto &rotation: rotations) {
-    anim.addFrame(rotation, positions);
-  }
+  // for(auto &rotation: rotations) {
+  //   anim.addFrame(rotation, positions);
+  // }
 
-  anim.stats();
+  // anim.stats();
 
   Grid grid(10, 1);
   // render loop
@@ -156,7 +162,7 @@ int main() {
     // bone.Draw(ourShader);
 
     // bones.drawJoints(ourShader, bone);
-    anim.play(ourShader);
+    // anim.play(ourShader);
 
     // view/projection transformations
     glm::mat4 projection =
@@ -165,14 +171,6 @@ int main() {
     glm::mat4 view = camera.GetViewMatrix();
     ourShader.setMat4("projection", projection);
     ourShader.setMat4("view", view);
-
-    // render the loaded model
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(1.0f, 2.0f, -3.0f));
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-    ourShader.setMat4("model", model);
-    ourShader.setVec3("objectColor", glm::vec3(0.8f));
-    ourModel.Draw(ourShader);
 
     grid.Draw(ourShader);
 
@@ -195,14 +193,14 @@ int main() {
 void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.ProcessKeyboard(FORWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.ProcessKeyboard(BACKWARD, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.ProcessKeyboard(LEFT, deltaTime);
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.ProcessKeyboard(RIGHT, deltaTime);
+  // if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+  //   camera.ProcessKeyboard(FORWARD, deltaTime);
+  // if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+  //   camera.ProcessKeyboard(BACKWARD, deltaTime);
+  // if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+  //   camera.ProcessKeyboard(LEFT, deltaTime);
+  // if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+  //   camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback
@@ -217,28 +215,47 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-  bool action = false;
+  bool left_action = false;
+  bool right_action = false;
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-    action = true;
+    left_action = true;
   } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
              GLFW_RELEASE) {
-    action = false;
+    left_action = false;
+  }
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+    right_action = true;
+  } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) ==
+             GLFW_RELEASE) {
+    right_action = false;
   }
 
-  if (action) {
+  if (left_action) {
     if (firstMouse) {
       lastX = xpos;
       lastY = ypos;
       firstMouse = false;
     }
     float xoffset = xpos - lastX;
-    float yoffset =
-        lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float yoffset = lastY - ypos;
 
     lastX = xpos;
     lastY = ypos;
-
     camera.ProcessMouseMovement(xoffset, yoffset);
+  }
+
+  if (right_action) {
+    if (firstMouse) {
+      lastX = xpos;
+      lastY = ypos;
+      firstMouse = false;
+    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+    camera.ProcessPanMovement(xoffset, yoffset);
   }
 }
 

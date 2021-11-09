@@ -11,10 +11,16 @@ public:
   Frame() { worldTransforms = {}; }
 
   void addFrameData(glm::mat4 transform) {
-    worldTransforms.push_back(transform);
+    if (worldTransforms.size() == 0) {
+      worldTransforms.push_back(transform);
+      return;
+    }
+    auto parent = worldTransforms[worldTransforms.size() - 1];
+    worldTransforms.push_back(parent * transform);
   }
 
   glm::mat4 getJointTransform(int id) { return worldTransforms[id]; }
+
 
   void log() {
     for (auto &transform : worldTransforms) {

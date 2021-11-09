@@ -138,16 +138,20 @@ struct Skeleton {
 
   void setTransforms(Frame frame) {
     // Get the frame for each joint.
-    auto active = &joints[0];
-    active->worldTransform = frame.getJointTransform(0);
-    for (int i = 1; i < joints.size(); i++) {
+    // auto active = &joints[0];
+    // active->worldTransform = frame.getJointTransform(0);
+    for (int i = 0; i < joints.size(); i++) {
       auto active = &joints[i];
-      auto data = frame.getJointTransform(i);
-      auto world = frame.getJointTransform(i - 1) * data;
-      active->worldTransform = world;
+      auto world = frame.getJointTransform(i);
+      active->worldTransform = world * glm::translate(glm::mat4(1.0f), joints[i].transform.worldPosition);
       // active_joint->transform.worldPosition =
       //     glm::vec3(world[3][0], world[3][1], world[3][2]);
     }
+  }
+
+  void setWorldPosition(int idx, glm::vec3 pos) {
+    auto active = &joints[idx];
+    active->transform.worldPosition = pos;
   }
 
 private:
