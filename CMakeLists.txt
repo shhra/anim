@@ -31,6 +31,7 @@ add_executable(visualization
   src/core/grid.hpp
   src/core/models.hpp
   src/core/transform.hpp
+  src/core/transform.cpp
   src/core/window.hpp
   src/core/input.hpp
 

@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "core/camera.hpp"
 #include "core/grid.hpp"
@@ -25,6 +26,12 @@
 int main() {
 
   Window window = Window(800, 600);
+
+  // glm::quat q1 = glm::angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+  // auto out = q1 * glm::vec3(1.0, 0.0, 0.0);
+
+  // std::cout << glm::to_string(out) << std::endl;
 
 
   window.initWindow();
