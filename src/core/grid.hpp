@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 class Grid {
 public:
   std::vector<glm::vec3> vertices;
@@ -16,19 +15,21 @@ public:
   unsigned int vao;
   unsigned int length;
 
+  Grid() {}
+
   Grid(int grids, int grid_size = 1) {
     int mid = ceil(grids / 2.0f);
     for (int i = -mid; i <= mid; i++) {
-        float x = i * grid_size;
-        vertices.push_back(glm::vec3(x, 0.f, -mid * grid_size));
-        vertices.push_back(glm::vec3(x, 0.f, mid * grid_size));
+      float x = i * grid_size;
+      vertices.push_back(glm::vec3(x, 0.f, -mid * grid_size));
+      vertices.push_back(glm::vec3(x, 0.f, mid * grid_size));
 
-        int z = i * grid_size;
-        vertices.push_back(glm::vec3(-mid * grid_size, 0.f, z));
-        vertices.push_back(glm::vec3(mid * grid_size, 0.f, z));
+      int z = i * grid_size;
+      vertices.push_back(glm::vec3(-mid * grid_size, 0.f, z));
+      vertices.push_back(glm::vec3(mid * grid_size, 0.f, z));
     }
 
-    for (int i = 0; i <= vertices.size(); i+=2) {
+    for (int i = 0; i <= vertices.size(); i += 2) {
       indices.push_back(glm::vec2(i, i + 1));
     }
 

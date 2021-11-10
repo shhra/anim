@@ -33,6 +33,8 @@ add_executable(visualization
   src/core/transform.hpp
   src/core/window.hpp
   src/core/input.hpp
+
+  src/app/scene.hpp
   
   src/animation/bone.hpp
   src/animation/bone_mesh.hpp

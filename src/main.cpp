@@ -13,6 +13,8 @@
 #include "core/shader.hpp"
 #include "core/window.hpp"
 
+#include "app/scene.hpp"
+
 // #include "animation/animation.hpp"
 #include "memory"
 
@@ -20,10 +22,6 @@
 
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -154,13 +152,17 @@ Camera camera(10);
 int main() {
 
   Window window = Window(800, 600);
+
+
   window.initWindow();
   window.createContext();
+  Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
+              "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
 
   while(!glfwWindowShouldClose(window.getContext())){
     window.handleInput();
-    window.render();
-    window.pollevents();
+    window.render(scene);
+    window.pollevents(scene);
   }
 
   glfwTerminate();

@@ -1,8 +1,8 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 
 class Input {
