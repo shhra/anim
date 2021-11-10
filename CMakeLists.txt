@@ -31,6 +31,8 @@ add_executable(visualization
   src/core/grid.hpp
   src/core/models.hpp
   src/core/transform.hpp
+  src/core/window.hpp
+  src/core/input.hpp
   
   src/animation/bone.hpp
   src/animation/bone_mesh.hpp
