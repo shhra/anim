@@ -2,7 +2,6 @@
 #define WINDOW_H_
 
 #include "input.hpp"
-#include "../app/scene.hpp"
 #include <memory>
 
 // Responsible for handling all window related business.
@@ -41,19 +40,20 @@ public:
     glEnable(GL_DEPTH_TEST);
   }
 
+  void postContext(Scene *scene) { input.get()->setScene(scene); }
+
   GLFWwindow *getContext() { return this->window; }
 
-  void render(Scene& scene) {
+  void render(Scene &scene) {
     glClearColor(0.69f, 0.839f, 0.961f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     scene.render(screen_width, screen_height);
     glfwSwapBuffers(window);
   }
 
-  void pollevents(Scene& scene) {
+  void pollevents(Scene &scene) {
     // Call the other functions here.
     glfwPollEvents();
-    scene.processInputs(input.get());
   }
 
   void handleInput() { input->keyboard_callback(window); }
@@ -77,7 +77,7 @@ private:
                                    registerCallback(framebuffer_size_callback));
     glfwSetCursorPosCallback(window, registerCallback(cursor_callback));
     glfwSetScrollCallback(window, registerCallback(scroll_callback));
-// #undef registerCallback
+    // #undef registerCallback
   }
 };
 

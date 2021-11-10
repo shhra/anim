@@ -159,6 +159,7 @@ int main() {
   Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
               "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
 
+  window.postContext(&scene);
   while(!glfwWindowShouldClose(window.getContext())){
     window.handleInput();
     window.render(scene);

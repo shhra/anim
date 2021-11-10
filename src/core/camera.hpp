@@ -82,8 +82,8 @@ public:
 
 
   void ProcessPanMovement(float xoffset, float yoffset) {
-    xoffset *= 0.0001 * Radius;
-    yoffset *= 0.0001 * Radius;
+    xoffset *= 0.001 * Radius;
+    yoffset *= 0.001 * Radius;
 
     Origin += -xoffset * Right - yoffset * Up;
 

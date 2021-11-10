@@ -1,9 +1,11 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
+#include "../app/scene.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <memory>
 
 class Input {
   float last_cursorX, last_cursorY;
@@ -16,6 +18,8 @@ public:
   std::pair<float, float> getCoords() {
     return std::pair<float, float>(last_cursorX, last_cursorY);
   }
+
+  void setScene(Scene *_scene) { scene = _scene; }
 
   void cursor_callback(GLFWwindow *window, double xpos, double ypos) {
     bool left_action = false;
@@ -33,32 +37,25 @@ public:
       right_action = false;
     }
 
-    if (left_action) {
-      // std::cout << "Left: (" << xpos << ", " << ypos << ")\n";
-      if (first_mouse) {
-        last_cursorX = xpos;
-        last_cursorY = ypos;
-        first_mouse = false;
-      }
-      float xoffset = xpos - last_cursorX;
-      float yoffset = last_cursorY - ypos;
-
-      last_cursorX = xpos;
-      last_cursorY = ypos;
+    if (!left_action && !right_action) {
+      return;
     }
-
-    if (right_action) {
-      // std::cout << "Right: (" << xpos << ", " << ypos << ")\n";
-      if (first_mouse) {
-        last_cursorX = xpos;
-        last_cursorY = ypos;
-        first_mouse = false;
-      }
-      float xoffset = xpos - last_cursorX;
-      float yoffset = last_cursorY - ypos;
-
+    if (first_mouse) {
       last_cursorX = xpos;
       last_cursorY = ypos;
+      first_mouse = false;
+    }
+    float xoffset = xpos - last_cursorX;
+    float yoffset = last_cursorY - ypos;
+
+    last_cursorX = xpos;
+    last_cursorY = ypos;
+
+    if (left_action) {
+      scene->processInputs(xoffset, yoffset, false, true);
+    }
+    if (right_action) {
+      scene->processInputs(xoffset, yoffset, true, false);
     }
   }
 
@@ -76,6 +73,7 @@ public:
   }
 
 private:
+  Scene *scene;
 };
 
 #endif // INPUT_H_

@@ -28,9 +28,14 @@ public:
     grid.Draw(shader);
   }
 
-  void processInputs(Input *input) {
-    auto coords = input->getCoords();
-    std::cout << "Coords: (" << coords.first << ", " << coords.second << ")\n";
+  void processInputs(float x, float y, bool pan, bool rotate) {
+    // This is inefficient but anyway.
+    if (rotate) {
+      cam.ProcessMouseMovement(x, y);
+    }
+    if (pan) {
+      cam.ProcessPanMovement(x, y);
+    }
   }
 
 private:
