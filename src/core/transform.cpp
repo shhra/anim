@@ -25,8 +25,8 @@ Transform Transform::lookAt(glm::vec3 &target, glm::vec3 &f) {
 }
 
 Transform Transform::fromMatrix(glm::mat4 &matrix) {
-    // TODO complete this.
-    return Transform();
+  // TODO complete this.
+  return Transform();
 }
 
 inline Transform Transform::fromRotation(glm::quat &rotation) {
@@ -38,17 +38,19 @@ inline Transform Transform::fromTranslation(glm::vec3 &translation) {
 }
 
 glm::mat4 Transform::toMat4() {
-    // TODO: Complete this.
-    return glm::mat4(1.0);
+  return glm::translate(glm::mat4(1.0), this->position) *
+         glm::mat4_cast(this->rotation) *
+         glm::scale(glm::mat4(1.0), this->scale);
 }
 
-Transform Transform::operator*(const Transform &b) {
-    auto rotation = this->rotation * b.rotation;
-    auto scale = this->scale * b.scale;
-    // Understand this operation and why is it done.
-    auto position = this->rotation * b.position;
-    position = this->scale * position;
-    position += this->position;
-    return Transform(position, rotation, scale);
+Transform Transform::operator*(const Transform b) {
+  auto rotation = this->rotation * b.rotation;
+  auto scale = this->scale * b.scale;
+  // Understand this operation and why is it done.
+  auto position = b.rotation * this->position;
 
+  position = b.scale * position;
+  position += b.position;
+  
+  return Transform(position, rotation, scale);
 }
