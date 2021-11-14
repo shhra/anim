@@ -25,6 +25,8 @@ struct Joint {
     worldTransform = this->transform * parent;
   }
 
+  void setTransform(const Transform &transform) { this->transform = transform; }
+
   friend std::ostream &operator<<(std::ostream &os, const Joint &j);
   unsigned int getParent() { return parent; }
 
@@ -62,9 +64,10 @@ struct Skeleton {
       auto rotate =
           glm::mat4_cast(parent.transform.lookAt(lookdir, zAxis).rotation);
 
+      auto scaleFactor = joints[i].worldTransform.scale *
+                         glm::length(joints[i].transform.position);
       auto translate = glm::translate(glm::mat4(1.f), parentP);
-      auto scale = glm::scale(
-          glm::mat4(1.f), glm::vec3(glm::length(joints[i].transform.position)));
+      auto scale = glm::scale(glm::mat4(1.f), scaleFactor);
 
       auto world = translate * rotate * scale;
       // auto world = translate * rotate;
@@ -86,6 +89,11 @@ struct Skeleton {
     active_joint->transform.rotation = joint_orientation;
   }
 
+  void setTransforms(Frame frame) {
+    for (int i = 0; i < size(); i++) {
+      joints[i].setTransform(frame[i]);
+    }
+  }
   void setWorldTransforms() {
     for (int i = 0; i < joints.size(); i++) {
       auto joint = &joints[i];
@@ -94,9 +102,17 @@ struct Skeleton {
       } else {
         joint->setWorldTransform(joints[joint->parent].worldTransform);
       }
-      std::cout << *joint;
+      // std::cout << *joint;
     }
   }
+
+  void setWorldTransforms(Frame frame) {
+    for (int i = 0; i < size(); i++) {
+      joints[i].setWorldTransform(frame[i]);
+    }
+  }
+
+  unsigned int size() { return joints.size(); }
 
 private:
   std::vector<Joint> joints;

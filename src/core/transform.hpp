@@ -59,7 +59,7 @@ struct Transform {
   glm::mat4 toMat4();
 
   //! This multiplies with the another transform b and return a new transform.
-  Transform operator*(const Transform b);
+  Transform operator*(const Transform parent);
 
 };
 

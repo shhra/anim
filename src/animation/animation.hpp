@@ -1,6 +1,7 @@
 #ifndef ANIMATION_H_
 #define ANIMATION_H_
 
+#include "../core/transform.hpp"
 #include "bone.hpp"
 #include "bone_mesh.hpp"
 #include "frame.hpp"
@@ -21,71 +22,58 @@ public:
     }
   }
 
-  void addFrame(std::vector<glm::mat4> transforms) {
-    Frame data = Frame();
-    if (frames.size() == 0) {
-      for (auto &transform : transforms) {
-        data.addFrameData(transform);
-      }
-    } else {
-      int current = frames.size();
-      for (int i = 0; i < transforms.size(); i++) {
-        auto previous = frames[current - 1].getJointTransform(i);
-        data.addFrameData(previous * transforms[i]);
-      }
+  void initRestFrame(std::vector<glm::quat> rotations,
+                     std::vector<glm::vec3> positions) {
+    initFrame = Frame();
+    for (int i = 0; i < skeleton.size(); i++) {
+      skeleton.setTransforms(i, rotations[i], positions[i]);
+      Transform t;
+      if (i == 0)
+        t = Transform(positions[i], rotations[i], glm::vec3(0.5));
+      else
+        t = Transform(positions[i], rotations[i], glm::vec3(1.0));
+
+      initFrame.addFrameData(t);
     }
-    frames.push_back(data);
+    activeFrame = initFrame;
   }
 
-  void addFrame(std::vector<glm::quat> rotations,
-                std::vector<glm::vec3> position) {
+  void addFrame(std::vector<glm::quat> rotations, glm::vec3 root_position) {
 
     Frame data = Frame();
-    // Adds the frame using given position and rotations.
-    auto translate = glm::vec3(0.f);
-    if (frames.size() == 0) {
-      for (int i = 0; i < rotations.size(); i++) {
-        skeleton.setTransforms(i, glm::quat(1.0, 0.0, 0.0, 0.0), position[i]);
-        translate += position[i];
-        skeleton.setWorldPosition(i, translate);
-        auto translate = glm::mat4(1);
-        auto rotate = glm::toMat4(rotations[i]);
-        auto transform = rotate * translate;
-        data.addFrameData(transform);
-      }
-    } else {
-      for (int i = 0; i < rotations.size(); i++) {
-        auto transform = glm::toMat4(rotations[i]);
-        transform = transform * frames[frames.size() - 1].getJointTransform(i);
-        data.addFrameData(transform);
-      }
+    Transform root = Transform(root_position, rotations[0], glm::vec3(1.0));
+    data.addFrameData(root);
+    for (int i = 1; i < rotations.size(); i++) {
+      Transform t = Transform(glm::vec3(0.0f), rotations[i], glm::vec3(1.0));
+      data.addFrameData(t);
     }
-
     frames.push_back(data);
   }
 
   void play(Shader &shader) {
     if (index >= frames.size()) {
       index = 0;
+      activeFrame = initFrame;
     }
-    skeleton.setTransforms(frames[index]);
-    // std::cout << "At index: " << index << "\n";
+    skeleton.setTransforms(activeFrame);
+    // skeleton.setWorldTransforms(activeFrame);
+    skeleton.setWorldTransforms();
     skeleton.drawJoints(shader, bone);
-    index++;
-  }
+    if (frames.size() > 0) {
+      // Current frame * prev frame. This helps bring to current frame reference.
+      auto resultFrame = frames[index] * activeFrame;
 
-  void stats() {
-    skeleton.log();
-    std::cout << "There are: " << frames.size() << " frames\n";
-    for (auto &frame : frames) {
-      // frame.log();
+      activeFrame = resultFrame;
     }
-    std::cout << "Processed.\n";
+    index++;
   }
 
 private:
   Skeleton skeleton;
   std::vector<Frame> frames;
+  // The inital frame for the animation.
+  Frame initFrame;
+  Frame activeFrame;
   BoneMesh bone;
   // High Risk: Data race. Better method needed.
   int index;

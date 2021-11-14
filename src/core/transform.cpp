@@ -1,6 +1,8 @@
 #include "transform.hpp"
 // #include "glm/glm.hpp"
 // #include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/string_cast.hpp"
+#include "iostream"
 
 Transform Transform::lookAt(glm::vec3 &target, glm::vec3 &f) {
   auto t = glm::normalize(target);
@@ -43,14 +45,15 @@ glm::mat4 Transform::toMat4() {
          glm::scale(glm::mat4(1.0), this->scale);
 }
 
-Transform Transform::operator*(const Transform b) {
-  auto rotation = this->rotation * b.rotation;
-  auto scale = this->scale * b.scale;
+Transform Transform::operator*(const Transform parent) {
+  auto r = parent.rotation * this->rotation;
+  auto s = this->scale * parent.scale;
   // Understand this operation and why is it done.
-  auto position = b.rotation * this->position;
+  auto t = parent.rotation * this->position;
+  t = parent.scale * t;
+  t += parent.position;
 
-  position = b.scale * position;
-  position += b.position;
-  
-  return Transform(position, rotation, scale);
+  // std::cout << "MULT:::: "<< glm::to_string(r) << "\n";
+
+  return Transform(t, r, s);
 }

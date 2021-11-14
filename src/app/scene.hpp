@@ -1,6 +1,7 @@
 #ifndef SCENE_H_
 #define SCENE_H_
 
+#include "../animation/animation.hpp"
 #include "../animation/bone.hpp"
 #include "../animation/bone_mesh.hpp"
 #include "../core/camera.hpp"
@@ -24,51 +25,77 @@ public:
 
   //! Initializes the scene resources.
   void init() {
-    bone = BoneMesh();
-    bones = Skeleton();
-    bones.addJoint("start", -1);
-    bones.addJoint("first", 0);
-    bones.addJoint("second", 1);
 
-    bones.setTransforms(
-        0, glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-        glm::vec3(0.0));
+    anim = Animation();
 
-    bones.setTransforms(
-        1, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-        glm::vec3(2.0));
+    auto data = std::vector<std::pair<string, int>>{
+        std::pair<string, int>("root", -1),
+        std::pair<string, int>("first", 0),
+        std::pair<string, int>("second", 1),
+        std::pair<string, int>("third", 2),
+    };
 
-    bones.setTransforms(
-        2, glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
-        glm::vec3(1.0, 1.0, 1.0));
-    bones.setWorldTransforms();
-  }
+    anim.addJoints(data);
+
+    auto rotations = std::vector<glm::quat>{
+        glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+        glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+        glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
+        glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))};
+
+    auto positions = std::vector<glm::vec3>{glm::vec3(0.0f, 0.0f, 0.0f),
+                                            glm::vec3(2.0f, 2.0f, 2.0f),
+                                            glm::vec3(1.0f, 1.0f, 1.0f),
+                                            0.5f * glm::vec3(1.0f, 1.0f, 1.0f)};
+
+    for (int j = 1; j <= 360; j++) {
+      auto anim_rotations = std::vector<glm::quat>{};
+      auto r1 =
+          glm::angleAxis(glm::radians(float(0)), glm::vec3(0.0f, 1.0f, 0.0f));
+      auto r2 =
+          glm::angleAxis(glm::radians(float(3)), glm::normalize(glm::vec3(1.0)));
+      auto r3 =
+          glm::angleAxis(glm::radians(float(0)), glm::vec3(0.0f, 1.0f, 0.0f));
+      auto r4 =
+          glm::angleAxis(glm::radians(float(0)), glm::vec3(1.0f, 0.0f, 0.0f));
+      anim_rotations.push_back(r1);
+      anim_rotations.push_back(r2);
+      anim_rotations.push_back(r3);
+      if (j < 180) {
+        anim.addFrame(anim_rotations, glm::vec3(0.01f));
+      } else {
+        anim.addFrame(anim_rotations, glm::vec3(-0.01f));
+      }
+
+    }
+
+  anim.initRestFrame(rotations, positions);
+}
 
   void render(float screen_width, float screen_height) {
-    glm::mat4 projection = glm::perspective(
-        glm::radians(cam.Zoom), screen_width / screen_height, 0.1f, 100.0f);
-    glm::mat4 view = cam.GetViewMatrix();
-    shader.setMat4("projection", projection);
-    shader.setMat4("view", view);
-    grid.Draw(shader);
-    bones.drawJoints(shader, bone);
-  }
+  glm::mat4 projection = glm::perspective(
+      glm::radians(cam.Zoom), screen_width / screen_height, 0.1f, 100.0f);
+  glm::mat4 view = cam.GetViewMatrix();
+  shader.setMat4("projection", projection);
+  shader.setMat4("view", view);
+  grid.Draw(shader);
+  anim.play(shader);
+}
 
-  void processInputs(float x, float y, bool pan, bool rotate) {
-    // This is inefficient but anyway.
-    if (rotate) {
-      cam.ProcessMouseMovement(x, y);
-    }
-    if (pan) {
-      cam.ProcessPanMovement(x, y);
-    }
+void processInputs(float x, float y, bool pan, bool rotate) {
+  if (rotate) {
+    cam.ProcessMouseMovement(x, y);
   }
+  if (pan) {
+    cam.ProcessPanMovement(x, y);
+  }
+}
 
 private:
-  Camera cam;
-  Shader shader;
-  Grid grid;
-  Skeleton bones;
-  BoneMesh bone;
-};
+Camera cam;
+Shader shader;
+Grid grid;
+Animation anim;
+}
+;
 #endif // SCENE_H_
