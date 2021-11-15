@@ -3,10 +3,15 @@ set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 project(visualization)
 
 
+
 add_subdirectory(library/glfw)
 
-include_directories(include)
+set(TINYGLTF_HEADER_ONLY ON CACHE INTERNAL "" FORCE)
+set(TINYGLTF_INSTALL OFF CACHE INTERNAL "" FORCE)
+set(TINYGLTF_BUIILD_LOADER_EXAMPLE "" OFF)
+add_subdirectory(library/tinygltf)
 
+include_directories(include)
 
 add_executable(visualization
   src/main.cpp
@@ -26,4 +31,5 @@ add_executable(visualization
   src/animation/bone_mesh.hpp
 )
 
-target_link_libraries(visualization glfw ${GLFW_LIBRARIES})
+target_link_libraries(visualization glfw ${GLFW_LIBRARIES}
+  tinygltf ${TINYGLTF_LIBRARIES})
