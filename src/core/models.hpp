@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../src/animation/bone.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
 
@@ -16,14 +17,7 @@
 #include <string>
 #include <vector>
 
-#include "../src/animation/bone.hpp"
-
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <tiny_gltf.h>
-
-//! This class handles reading of the motion file.
+//! This class handles reading of the model file using gltf.
 class Model {
 public:
   // Set the model data.
@@ -44,20 +38,8 @@ public:
   }
 
 private:
-  tinygltf::Model tgModel;
-  tinygltf::TinyGLTF loader;
   std::string err, warn;
-  void loadModel(std::string const &path) {
-    bool result = loader.LoadASCIIFromFile(&tgModel, &err, &warn, path);
-    if (result) {
-      std::cout << "Model loaded successfully." << std::endl;
-    }
-  }
-
-  void loadPrimitives();
-  void loadBuffers();
-  void loadJoints();
-  void loadSkinningWeights();
+  void loadModel(std::string const &path);
 };
 
 #endif

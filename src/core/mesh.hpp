@@ -89,7 +89,7 @@ public:
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0); // unbinding.
+    glBindVertexArray(0); // u
 
     // always good practice to set everything back to defaults once configured.
     glActiveTexture(GL_TEXTURE0);

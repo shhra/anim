@@ -20,6 +20,7 @@ add_executable(visualization
   src/core/mesh.hpp
   src/core/grid.hpp
   src/core/models.hpp
+  src/core/models.cpp
   src/core/transform.hpp
   src/core/transform.cpp
   src/core/window.hpp

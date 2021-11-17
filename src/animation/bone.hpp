@@ -27,7 +27,7 @@ struct Joint {
 
   void setTransform(const Transform &transform) { this->transform = transform; }
 
-  friend std::ostream &operator<<(std::ostream &os, const Joint &j);
+  // friend std::ostream &operator<<(std::ostream &os, const Joint &j);
   unsigned int getParent() { return parent; }
 
   unsigned int id;
@@ -36,18 +36,6 @@ struct Joint {
   Transform transform;
   Transform worldTransform;
 };
-
-std::ostream &operator<<(std::ostream &os, Joint &j) {
-  os << "\n\n========================================\n";
-  os << "ID: " << j.id << "\n";
-  os << "Parent ID: " << j.parent << "\n";
-  os << "Position: " << glm::to_string(j.transform.position) << "\n";
-  os << "Rotation: " << glm::to_string(j.transform.rotation) << "\n";
-  os << "World Position: " << glm::to_string(j.worldTransform.position) << "\n";
-  os << "World Rotation: " << glm::to_string(j.worldTransform.rotation) << "\n";
-  os << "========================================\n";
-  return os;
-}
 
 struct Skeleton {
   Skeleton() { joints = std::vector<Joint>{}; }
