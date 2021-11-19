@@ -15,6 +15,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <tiny_gltf.h>
 #include <vector>
 
 //! This class handles reading of the model file using gltf.
@@ -38,8 +39,11 @@ public:
   }
 
 private:
+  tinygltf::Model glTFModel;
   std::string err, warn;
   void loadModel(std::string const &path);
+  void loadNode(tinygltf::Node &nodes, glm::mat4 transform);
+  void loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform);
 };
 
 #endif

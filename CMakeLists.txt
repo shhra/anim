@@ -16,6 +16,7 @@ include_directories(include)
 add_executable(visualization
   src/main.cpp
   src/glad.c
+  src/tinygltf.cc
   src/core/shader.hpp
   src/core/mesh.hpp
   src/core/grid.hpp
