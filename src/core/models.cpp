@@ -82,36 +82,38 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
       int byteStride = accessor.ByteStride(bufferView);
 
       if (attribute.first == "POSITION") {
-        glm::vec4 pos = glm::vec4(0.0f);
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            glm::vec4 pos = glm::vec4(0.0f);
             auto *base =
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const float *data = (float *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               pos[i] = data[i];
             }
+            // TODO: Add this position into the mesh data.
+            std::cout << glm::to_string(transform * pos) << std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
         }
-        std::cout << glm::to_string(transform * pos) << std::endl;
 
       } else if (attribute.first == "NORMAL") {
-        glm::vec3 norm = glm::vec3(0.0f);
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            glm::vec3 norm = glm::vec3(0.0f);
             auto *base =
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const float *data = (float *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               norm[i] = data[i];
             }
+            // TODO: Add this normal into the mesh data.
+            std::cout << glm::to_string(normalTransform * norm) << std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
         }
-        std::cout << glm::to_string(normalTransform * norm) << std::endl;
       }
     }
   }
