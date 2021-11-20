@@ -51,23 +51,102 @@ void Model::loadNode(tinygltf::Node &node, glm::mat4 transform) {
     localTransform = glm::make_mat4x4(node.matrix.data());
   }
 
-  localTransform = transform * localTransform;
+  auto worldTransform = transform * localTransform;
 
   if (node.mesh >= 0) {
-    loadMesh(glTFModel.meshes[node.mesh], localTransform);
+    loadMesh(glTFModel.meshes[node.mesh], worldTransform);
   }
 
-  for(auto &child : node.children) {
-    loadNode(glTFModel.nodes[child], localTransform);
+  for (auto &child : node.children) {
+    loadNode(glTFModel.nodes[child], worldTransform);
   }
-
 }
 
 void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
+  glm::mat3 normalTransform =
+      glm::transpose(glm::inverse(glm::mat3(transform)));
 
-  // I am not interested in normal matrix for time being.
-  // But the normal matrix is a good have matrix.
-  // Therefore it will be in TODO
+  for (auto &primitive : mesh.primitives) {
 
+    // TODO Create a mesh over here.
 
+    if (primitive.indices >= 0) {
+      loadIndices(primitive);
+    }
+
+    // Extract the vertex data.
+    for (auto &attribute : primitive.attributes) {
+      auto &accessor = glTFModel.accessors[attribute.second];
+      auto &bufferView = glTFModel.bufferViews[accessor.bufferView];
+      auto &buffer = glTFModel.buffers[bufferView.buffer];
+      int byteStride = accessor.ByteStride(bufferView);
+
+      if (attribute.first == "POSITION") {
+        glm::vec4 pos = glm::vec4(0.0f);
+        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+          for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            auto *base =
+                &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
+            const float *data = (float *)(base + byteStride * v_pos);
+            for (size_t i = 0; i < accessorType[accessor.type]; i++) {
+              pos[i] = data[i];
+            }
+          }
+        } else {
+          std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
+        }
+        std::cout << glm::to_string(transform * pos) << std::endl;
+
+      } else if (attribute.first == "NORMAL") {
+        glm::vec3 norm = glm::vec3(0.0f);
+        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+          for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            auto *base =
+                &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
+            const float *data = (float *)(base + byteStride * v_pos);
+            for (size_t i = 0; i < accessorType[accessor.type]; i++) {
+              norm[i] = data[i];
+            }
+          }
+        } else {
+          std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
+        }
+        std::cout << glm::to_string(normalTransform * norm) << std::endl;
+      }
+    }
+  }
+}
+
+void Model::loadIndices(tinygltf::Primitive &primitive) {
+  auto &index_accessor = glTFModel.accessors[primitive.indices];
+  auto &buffer_view = glTFModel.bufferViews[index_accessor.bufferView];
+  auto &buffer = glTFModel.buffers[buffer_view.buffer];
+
+  // access the ptr.
+  const uint8_t *base =
+      &buffer.data.at(buffer_view.byteOffset + index_accessor.byteOffset);
+
+  // Depending upon the type of data that is being stored, we can convert
+  // the pointer into corresponding type.
+  switch (index_accessor.componentType) {
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT: {
+    const uint32_t *p = (uint32_t *)base;
+    for (size_t i = 0; i < index_accessor.count; ++i) {
+      // std::cout << "(unsigned int) Index accessor: " << p[i] << "\n";
+    }
+
+  }; break;
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
+    const uint16_t *p = (uint16_t *)base;
+    for (size_t i = 0; i < index_accessor.count; ++i) {
+      // std::cout << "(short unsigned int) Index accessor: " << p[i] << "\n";
+    }
+  }; break;
+  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
+    for (size_t i = 0; i < index_accessor.count; ++i) {
+      // std::cout << "(short unsigned int) Index accessor: " << base[i] <<
+      // "\n";
+    }
+  }; break;
+  }
 }
