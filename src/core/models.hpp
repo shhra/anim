@@ -38,7 +38,6 @@ static std::map<int, int> accessorType = std::map<int, int>{
 class Model {
 public:
   // Set the model data.
-  vector<Texture> textures;
   vector<Mesh> meshes;
   vector<Skeleton> skeletons;
   bool applyGamma;
@@ -46,6 +45,12 @@ public:
     // load my mesh.
     // Find all the relevant meshes and load it.
     loadModel(path);
+  }
+
+  void load() {
+    for (auto &mesh : meshes) {
+      mesh.load();
+    }
   }
 
   void Draw(Shader &shader) {

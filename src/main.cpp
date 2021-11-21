@@ -34,6 +34,7 @@ int main() {
 
 
   Model model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+  model.load();
 
   window.postContext(&scene);
   while(!glfwWindowShouldClose(window.getContext())){

@@ -43,17 +43,16 @@ public:
         glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)),
         glm::angleAxis(glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))};
 
-    auto positions = std::vector<glm::vec3>{glm::vec3(0.0f, 0.0f, 0.0f),
-                                            glm::vec3(2.0f, 2.0f, 2.0f),
-                                            glm::vec3(1.0f, 1.0f, 1.0f),
-                                            0.5f * glm::vec3(1.0f, 1.0f, 1.0f)};
+    auto positions = std::vector<glm::vec3>{
+        glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 2.0f, 2.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f), 0.5f * glm::vec3(1.0f, 1.0f, 1.0f)};
 
     for (int j = 1; j <= 360; j++) {
       auto anim_rotations = std::vector<glm::quat>{};
       auto r1 =
           glm::angleAxis(glm::radians(float(0)), glm::vec3(0.0f, 1.0f, 0.0f));
-      auto r2 =
-          glm::angleAxis(glm::radians(float(3)), glm::normalize(glm::vec3(1.0)));
+      auto r2 = glm::angleAxis(glm::radians(float(3)),
+                               glm::normalize(glm::vec3(1.0)));
       auto r3 =
           glm::angleAxis(glm::radians(float(0)), glm::vec3(0.0f, 1.0f, 0.0f));
       auto r4 =
@@ -66,36 +65,37 @@ public:
       } else {
         anim.addFrame(anim_rotations, glm::vec3(-0.01f));
       }
-
     }
 
-  anim.initRestFrame(rotations, positions);
-}
+    anim.initRestFrame(rotations, positions);
+    model.load();
+  }
 
   void render(float screen_width, float screen_height) {
-  glm::mat4 projection = glm::perspective(
-      glm::radians(cam.Zoom), screen_width / screen_height, 0.1f, 100.0f);
-  glm::mat4 view = cam.GetViewMatrix();
-  shader.setMat4("projection", projection);
-  shader.setMat4("view", view);
-  grid.Draw(shader);
-  anim.play(shader);
-}
+    glm::mat4 projection = glm::perspective(
+        glm::radians(cam.Zoom), screen_width / screen_height, 0.1f, 100.0f);
+    glm::mat4 view = cam.GetViewMatrix();
+    shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+    grid.Draw(shader);
+    anim.play(shader);
+    model.Draw(shader);
+  }
 
-void processInputs(float x, float y, bool pan, bool rotate) {
-  if (rotate) {
-    cam.ProcessMouseMovement(x, y);
+  void processInputs(float x, float y, bool pan, bool rotate) {
+    if (rotate) {
+      cam.ProcessMouseMovement(x, y);
+    }
+    if (pan) {
+      cam.ProcessPanMovement(x, y);
+    }
   }
-  if (pan) {
-    cam.ProcessPanMovement(x, y);
-  }
-}
 
 private:
-Camera cam;
-Shader shader;
-Grid grid;
-Animation anim;
-}
-;
+  Camera cam;
+  Shader shader;
+  Grid grid;
+  Animation anim;
+  Model model = Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+};
 #endif // SCENE_H_

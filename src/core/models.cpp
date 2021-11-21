@@ -69,7 +69,9 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
   for (auto &primitive : mesh.primitives) {
 
     // TODO Create a mesh over here.
+    meshes.push_back(Mesh());
 
+    auto &active_mesh = meshes[meshes.size() - 1];
     if (primitive.indices >= 0) {
       loadIndices(primitive);
     }
@@ -91,8 +93,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               pos[i] = data[i];
             }
-            // TODO: Add this position into the mesh data.
-            std::cout << glm::to_string(transform * pos) << std::endl;
+            active_mesh.addVertex(glm::vec3(pos));
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -109,7 +110,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
               norm[i] = data[i];
             }
             // TODO: Add this normal into the mesh data.
-            std::cout << glm::to_string(normalTransform * norm) << std::endl;
+            active_mesh.addNormal(norm);
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -128,26 +129,26 @@ void Model::loadIndices(tinygltf::Primitive &primitive) {
   const uint8_t *base =
       &buffer.data.at(buffer_view.byteOffset + index_accessor.byteOffset);
 
+  auto &active_mesh = meshes[meshes.size() - 1];
   // Depending upon the type of data that is being stored, we can convert
   // the pointer into corresponding type.
   switch (index_accessor.componentType) {
   case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT: {
     const uint32_t *p = (uint32_t *)base;
     for (size_t i = 0; i < index_accessor.count; ++i) {
-      // std::cout << "(unsigned int) Index accessor: " << p[i] << "\n";
+      active_mesh.addIndex(p[i]);
     }
 
   }; break;
   case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
     const uint16_t *p = (uint16_t *)base;
     for (size_t i = 0; i < index_accessor.count; ++i) {
-      // std::cout << "(short unsigned int) Index accessor: " << p[i] << "\n";
+      active_mesh.addIndex(p[i]);
     }
   }; break;
   case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
     for (size_t i = 0; i < index_accessor.count; ++i) {
-      // std::cout << "(short unsigned int) Index accessor: " << base[i] <<
-      // "\n";
+      active_mesh.addIndex(base[i]);
     }
   }; break;
   }
