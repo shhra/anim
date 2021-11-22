@@ -11,7 +11,8 @@ public:
   void Draw(Shader &shader) {
     // glm::mat4 bone_model = glm::mat4(1.0f);
     // shader.setMat4("model", bone_model);
-    shader.setVec3("objectColor", glm::vec3(0.8f, 0.7f, 1.f));
+    auto c = glm::vec3(0.8f, 0.7f, 1.f);
+    // shader.setVec3("lightColor", c);
 
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, nullptr);
@@ -65,6 +66,10 @@ private:
 
     glBindVertexArray(0);
   }
+
+    void calculateNormals() {
+
+    }
 };
 
 #endif // BONE_MESH_H_

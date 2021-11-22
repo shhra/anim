@@ -2,8 +2,8 @@
 #define INPUT_H_
 
 #include "../app/scene.hpp"
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <iostream>
 #include <memory>
 
@@ -24,20 +24,25 @@ public:
   void cursor_callback(GLFWwindow *window, double xpos, double ypos) {
     bool left_action = false;
     bool right_action = false;
+    // first_mouse = true;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
       left_action = true;
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) ==
                GLFW_RELEASE) {
       left_action = false;
+      // return;
     }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
       right_action = true;
     } else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) ==
                GLFW_RELEASE) {
       right_action = false;
+      // return;
     }
 
     if (!left_action && !right_action) {
+      last_cursorX = xpos;
+      last_cursorY = ypos;
       return;
     }
     if (first_mouse) {

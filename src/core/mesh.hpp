@@ -68,7 +68,7 @@ private:
                  GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
                           (void *)0);
 
     glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions),

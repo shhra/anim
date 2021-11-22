@@ -102,7 +102,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
       } else if (attribute.first == "NORMAL") {
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
-            glm::vec3 norm = glm::vec3(0.0f);
+            glm::vec4 norm = glm::vec4(0.0f);
             auto *base =
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const float *data = (float *)(base + byteStride * v_pos);
@@ -110,7 +110,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
               norm[i] = data[i];
             }
             // TODO: Add this normal into the mesh data.
-            active_mesh.addNormal(norm);
+            active_mesh.addNormal(glm::vec3(norm));
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
