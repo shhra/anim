@@ -12,18 +12,18 @@ uniform vec3 objectColor;
 const float pi = 3.141592653589793238;
 void main()
 {
-    vec3 lightColor =  vec3(1.0, 1.0, 1.0);
-    vec3 lightPos = 3.0 * vec3(1, 1, 1);
+    vec3 lightColor =  1000. * vec3(0.5859, 0.4, 0.3);
+    vec3 lightPos = 10.0 * vec3(1, 1, 0);
     // vec3 objectColor = vec3(0.125, 0.875, 0.250);
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * lightColor;
+    float ambientStrength = 0.2;
+    vec3 ambient = ambientStrength * lightColor / (4.0 * pi * length(lightPos) * length(lightPos));
 
     // diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
+    vec3 diffuse = diff * lightColor / (4.0 * pi * length(lightPos) * length(lightPos));
 
-    vec3 result = (diffuse) * objectColor;
-    FragColor = vec4(norm, 1.0);
+    vec3 result = (ambient + diffuse) * objectColor;
+    FragColor = vec4(result, 1.0);
 }

@@ -77,6 +77,7 @@ public:
     glm::mat4 view = cam.GetViewMatrix();
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
+    auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
     anim.play(shader);
     model.Draw(shader);

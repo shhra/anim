@@ -48,36 +48,29 @@ private:
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
     glBindVertexArray(VAO);
-    // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // A great thing about structs is that their memory layout is sequential for
-    // all its items. The effect is that we can simply pass a pointer to the
-    // struct and it translates perfectly to a glm::vec3/2 array which again
-    // translates to 3/2 floats which translates to a byte array.
-    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions),
-                 &positions[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 positions.size() * sizeof(glm::vec3) +
+                     normals.size() * sizeof(glm::vec3),
+                 nullptr, GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
-                          (void *)0);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(glm::vec3),
+                    &positions[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3),
+                    normals.size() * sizeof(glm::vec3), &normals[0]);
 
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals), &normals[0],
-                 GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
-                          (void *)0);
+                          (void *)(sizeof(glm::vec3) * positions.size()));
 
-    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions),
-                 &positions[0], GL_STATIC_DRAW);
-
+    glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
                  &indices[0], GL_STATIC_DRAW);
 
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
   }
 };
