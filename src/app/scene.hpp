@@ -80,7 +80,9 @@ public:
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
     anim.play(shader);
-    model.Draw(shader);
+//    model.Draw(shader);
+    model.skeleton.drawJoints(shader, bone);
+
   }
 
   void processInputs(float x, float y, bool pan, bool rotate) {
@@ -97,6 +99,7 @@ private:
   Shader shader;
   Grid grid;
   Animation anim;
+  BoneMesh bone = BoneMesh();
   Model model = Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
 };
 #endif // SCENE_H_

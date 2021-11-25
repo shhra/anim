@@ -26,9 +26,17 @@ Transform Transform::lookAt(glm::vec3 &target, glm::vec3 &f) {
   return Transform(glm::vec3(0.0), rotation, glm::vec3(1.0));
 }
 
-Transform Transform::fromMatrix(glm::mat4 &matrix) {
-  // TODO complete this.
-  return Transform();
+Transform::Transform(glm::mat4 &matrix) {
+  // Extract position, scale and rotation from the given matrix.
+  this->position = matrix[3];
+
+  for(int i= 0; i < 3; i++) {
+    this->scale[i] = glm::length(glm::vec3(matrix[i]));
+  }
+  const glm::mat3 rotationMat(glm::vec3(matrix[0] / scale[0]),
+                                     glm::vec3(matrix[1] / scale[1]),
+                                     glm::vec3(matrix[2] / scale[2]));
+  this->rotation = glm::quat_cast(rotationMat);
 }
 
 inline Transform Transform::fromRotation(glm::quat &rotation) {

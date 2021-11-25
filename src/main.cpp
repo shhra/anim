@@ -32,10 +32,6 @@ int main() {
   Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
               "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
 
-
-  Model model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
-  model.load();
-
   window.postContext(&scene);
   while(!glfwWindowShouldClose(window.getContext())){
     window.handleInput();

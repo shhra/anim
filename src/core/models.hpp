@@ -37,9 +37,10 @@ static std::map<int, int> accessorType = std::map<int, int>{
 //! This class handles reading of the model file using gltf.
 class Model {
 public:
+
   // Set the model data.
   vector<Mesh> meshes;
-  vector<Skeleton> skeletons;
+  Skeleton skeleton;
   bool applyGamma;
   Model(std::string const &path, bool gamma = false) : applyGamma(gamma) {
     // load my mesh.
@@ -67,6 +68,8 @@ private:
   void loadIndices(tinygltf::Primitive &primitive);
   void loadNode(tinygltf::Node &nodes, glm::mat4 transform);
   void loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform);
+  void loadSkeleton();
 };
+
 
 #endif

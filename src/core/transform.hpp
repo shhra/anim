@@ -3,6 +3,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
+#include "glm/gtx/matrix_decompose.hpp"
 
 struct Transform {
   //! Defines the rotation of the object
@@ -22,7 +23,7 @@ struct Transform {
       : position(T), rotation(R), scale(S) {}
 
   //! Extracts the translation, rotation and scale from the matrix.
-  Transform fromMatrix(glm::mat4 &matrix);
+  Transform (glm::mat4 &matrix);
 
   //! Given the forward vector and towards direction, calculate the transform
   //! and return the rotated transform. This transformation mutates the state.

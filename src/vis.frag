@@ -15,7 +15,7 @@ void main()
     vec3 lightColor =  1000. * vec3(0.5859, 0.4, 0.3);
     vec3 lightPos = 10.0 * vec3(1, 1, 0);
     // vec3 objectColor = vec3(0.125, 0.875, 0.250);
-    float ambientStrength = 0.2;
+    float ambientStrength = 0.4;
     vec3 ambient = ambientStrength * lightColor / (4.0 * pi * length(lightPos) * length(lightPos));
 
     // diffuse

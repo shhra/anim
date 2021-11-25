@@ -14,12 +14,18 @@ using namespace std;
 
 #define MAX_BONE_INFLUENCE 4
 
+
 class Mesh {
 public:
   // mesh Data
   vector<glm::vec3> positions;
   vector<glm::vec3> normals;
   vector<unsigned int> indices;
+  // Create a list of skinning indices.
+  vector<glm::ivec4> joint_indices;
+  // Create a list of skinning weights.
+  vector<glm::vec4> joint_weights;
+
   unsigned int VAO;
 
   Mesh() {}
@@ -27,6 +33,9 @@ public:
   void addVertex(glm::vec3 vertex) { positions.push_back(vertex); }
   void addNormal(glm::vec3 normal) { normals.push_back(normal); }
   void addIndex(unsigned int index) { indices.push_back(index); }
+  void addJoint(glm::ivec4 joint_index) { joint_indices.push_back(joint_index); }
+  void addWeight(glm::vec4 weight) { joint_weights.push_back(weight); }
+
 
   // render the mesh
   void Draw(Shader &shader) {

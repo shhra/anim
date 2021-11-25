@@ -25,7 +25,19 @@ struct Joint {
     worldTransform = this->transform * parent;
   }
 
+  void setLocalTransform(Transform &parent) {
+//    glm::mat4 parentTransform = glm::inverse(parent.toMat4());
+//    glm::mat4 myTransform = this->worldTransform.toMat4();
+//    glm::mat4 local = parentTransform * myTransform;
+//    this->transform = Transform(local);
+    this->transform.position = parent.position - this->worldTransform.position;
+    this->transform.rotation = this->worldTransform.rotation * glm::conjugate(parent.rotation);
+    this->transform.scale = this->worldTransform.scale / parent.scale;
+  }
+
   void setTransform(const Transform &transform) { this->transform = transform; }
+
+  void setParent(unsigned int parent_id) { parent = parent_id; }
 
   // friend std::ostream &operator<<(std::ostream &os, const Joint &j);
   unsigned int getParent() { return parent; }
@@ -35,12 +47,33 @@ struct Joint {
   std::string name;
   Transform transform;
   Transform worldTransform;
+  // Joint also has inverse bind pose transform.
+  glm::mat4 inverseBindPose;
 };
 
 struct Skeleton {
   Skeleton() { joints = std::vector<Joint>{}; }
 
-  void log() { std::cout << "There are " << joints.size() << " joints.\n"; }
+  void log() {
+    std::cout << "There are " << joints.size() << " joints.\n";
+    // Also print all the joint name and its parent name is prettified format.
+    for (auto &j : joints) {
+      if (j.parent == -1) {
+        std::cout << "Joint " << j.name << " has no parent.\n";
+      } else {
+        std::cout << "Joint " << j.name << " has parent "
+                  << joints[j.parent].name << ".\n";
+      }
+
+      // Print it's local transform.
+      std::cout << "Joint " << j.name << "'s local transform is:\n"
+                << glm::to_string(j.transform.toMat4()) << "\n";
+
+      // Also print it's world transform.
+      std::cout << "Joint " << j.name << "'s world transform is "
+                << glm::to_string(j.worldTransform.toMat4()) << ".\n";
+    }
+  }
 
   void drawJoints(Shader &shader, BoneMesh &joint_model) {
     for (int i = 1; i < joints.size(); i++) {
@@ -64,17 +97,44 @@ struct Skeleton {
     }
   }
 
+  void addJoint(std::string name, int child, int parent) {
+    joints.push_back(Joint(name, child, parent));
+  }
+
   void addJoint(std::string name, int parent) {
     int id = joints.size();
     Joint j = Joint(name, id, parent);
     joints.push_back(j);
   }
 
+  void setParent(int child, int parent) {
+    // Find the index of parent joint
+    int parent_id = findJointIdx(parent);
+    // select the child joint with the given id and set its parent to parent_id
+    for (auto &j : joints) {
+      if (j.id == child) {
+        j.setParent(parent_id);
+        break;
+      }
+    }
+  }
+
   void setTransforms(int joint_idx, glm::quat joint_orientation,
-                     glm::vec3 joint_offset) {
-    auto active_joint = &joints[joint_idx];
+                     glm::vec3 joint_offset, glm::vec3 scale = glm::vec3(1.0)) {
+
+    // Find the joint position for the given joint index.
+    int joint_id = findJointIdx(joint_idx);
+    auto active_joint = &joints[joint_id];
     active_joint->transform.position = joint_offset;
     active_joint->transform.rotation = joint_orientation;
+    active_joint->transform.scale = scale;
+  }
+
+  void setTransforms(std::string joint_name, glm::mat4 transform) {
+    int joint_id = findJointIdx(joint_name);
+    auto active_joint = &joints[joint_id];
+    auto trans = Transform(transform);
+    active_joint->setTransform(trans);
   }
 
   void setTransforms(Frame frame) {
@@ -82,6 +142,34 @@ struct Skeleton {
       joints[i].setTransform(frame[i]);
     }
   }
+
+  void setWorldTransforms(Frame frame) {
+    for (int i = 0; i < size(); i++) {
+      joints[i].setWorldTransform(frame[i]);
+    }
+  }
+
+  void setLocalTransform() {
+    for (int i = 0; i < joints.size(); i++) {
+      auto joint = &joints[i];
+      if (joint->parent == -1) {
+        joint->transform = joint->worldTransform;
+      } else {
+        joint->setLocalTransform(joints[joint->parent].worldTransform);
+      }
+    }
+  }
+
+  void setWorldTransforms(std::string joint_name, glm::mat4 transform) {
+    int joint_id = findJointIdx(joint_name);
+    if (joint_id == -1) {
+      return;
+    }
+    auto active_joint = &joints[joint_id];
+    auto trans = Transform(transform);
+    active_joint->setWorldTransform(trans);
+  }
+
   void setWorldTransforms() {
     for (int i = 0; i < joints.size(); i++) {
       auto joint = &joints[i];
@@ -94,16 +182,30 @@ struct Skeleton {
     }
   }
 
-  void setWorldTransforms(Frame frame) {
-    for (int i = 0; i < size(); i++) {
-      joints[i].setWorldTransform(frame[i]);
-    }
-  }
-
   unsigned int size() { return joints.size(); }
 
 private:
   std::vector<Joint> joints;
+
+  // Find the index of the joint with given id.
+  int findJointIdx(int id) {
+    for (int i = 0; i < joints.size(); i++) {
+      if (joints[i].id == id) {
+        return i;
+      }
+    }
+    return -1; // This means the id doesn't exist which is never going to happen.
+  }
+
+  // Find the index of the joint with given name.
+  int findJointIdx(std::string name) {
+    for (int i = 0; i < joints.size(); i++) {
+      if (joints[i].name == name) {
+        return i;
+      }
+    }
+    return -1; // This means the id doesn't exist which is never going to happen.
+  }
 };
 
 #endif /* BONE_H*/

@@ -1,7 +1,3 @@
-// This tiny gltf should be included in only one .cc file.
-// In this case the model loading will handle everything here.
-// This way, the application will get the gltf model
-
 #include "models.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,6 +11,9 @@ void Model::loadModel(std::string const &path) {
   if (result) {
     std::cout << "Model loaded successfully." << std::endl;
   }
+  // First load the skeletons from the model.
+  loadSkeleton();
+
   // Once the model is loaded, it consists of different scene.
   // Therefore we can only load the default scene.
   auto &scene = glTFModel.scenes[glTFModel.defaultScene];
@@ -24,6 +23,9 @@ void Model::loadModel(std::string const &path) {
   for (auto &node : scene.nodes) {
     loadNode(glTFModel.nodes[node], glm::mat4(1.0));
   }
+
+  skeleton.setLocalTransform();
+//  skeleton.log();
 }
 
 void Model::loadNode(tinygltf::Node &node, glm::mat4 transform) {
@@ -53,6 +55,8 @@ void Model::loadNode(tinygltf::Node &node, glm::mat4 transform) {
 
   auto worldTransform = transform * localTransform;
 
+  skeleton.setWorldTransforms(node.name, worldTransform);
+
   if (node.mesh >= 0) {
     loadMesh(glTFModel.meshes[node.mesh], worldTransform);
   }
@@ -75,14 +79,18 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
     if (primitive.indices >= 0) {
       loadIndices(primitive);
     }
-
     // Extract the vertex data.
     for (auto &attribute : primitive.attributes) {
+      // Configure accessor.
       auto &accessor = glTFModel.accessors[attribute.second];
+      // Use accessor to find the correct bufferView.
       auto &bufferView = glTFModel.bufferViews[accessor.bufferView];
+      // Using the correct bufferView, find the correct buffer.
       auto &buffer = glTFModel.buffers[bufferView.buffer];
+      // Calculate the byte stride.
       int byteStride = accessor.ByteStride(bufferView);
 
+      // Load the position data into the active mesh.
       if (attribute.first == "POSITION") {
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
@@ -98,8 +106,11 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
         }
+      }
 
-      } else if (attribute.first == "NORMAL") {
+      // Load the normal data into the active mesh.
+      if (attribute.first == "NORMAL") {
+        std::cout << "Going to implement normal attribute" << std::endl;
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
             glm::vec3 norm = glm::vec3(0.0f);
@@ -109,8 +120,58 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               norm[i] = data[i];
             }
-            // TODO: Add this normal into the mesh data.
             active_mesh.addNormal(glm::normalize(normalTransform * norm));
+          }
+        }
+      }
+
+      // Load the joint data into the active mesh.
+      if (attribute.first == "JOINTS_0") {
+        std::cout << "Going to implement joint attribute" << std::endl;
+        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+          // Now load the joint data into the mesh.
+          for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            glm::vec4 joint = glm::vec4(0.0f);
+            auto *base =
+                &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
+            const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
+            for (size_t i = 0; i < accessorType[accessor.type]; i++) {
+              joint[i] = data[i];
+            }
+            active_mesh.addJoint(glm::vec4(joint));
+          }
+        } else if (accessor.componentType ==
+                   TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+          // Now load this joint data into the mesh.
+          for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            glm::vec4 joint = glm::vec4(0.0f);
+            auto *base =
+                &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
+            const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
+            for (size_t i = 0; i < accessorType[accessor.type]; i++) {
+              joint[i] = data[i];
+            }
+            active_mesh.addJoint(glm::vec4(joint));
+          }
+        } else {
+          std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
+        }
+      }
+
+      // Load the skinning weights into the active mesh.
+      if (attribute.first == "WEIGHTS_0") {
+        std::cout << "Going to implement skinning weights" << std::endl;
+        // Parse the weight data as a float by checking the component type to be
+        // a float. Do not implement for other cases.
+        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+          for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
+            glm::vec4 weight = glm::vec4(0.0f);
+            auto *base =
+                &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
+            const float *data = (float *)(base + byteStride * v_pos);
+            for (size_t i = 0; i < accessorType[accessor.type]; i++) {
+              weight[i] = data[i];
+            }
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -151,5 +212,54 @@ void Model::loadIndices(tinygltf::Primitive &primitive) {
       active_mesh.addIndex(base[i]);
     }
   }; break;
+  }
+}
+
+void Model::loadSkeleton() {
+  // To load a skeleton, first access the skeleton in glTFModel. Once we have
+  // the skeleton, we can load the joints.
+  for (auto &source_skeleton : glTFModel.skins) {
+    // Print the name of the source_skeleton.
+    std::cout << "Skeleton name: " << source_skeleton.name << std::endl;
+
+    for (auto &joint : source_skeleton.joints) {
+      skeleton.addJoint(glTFModel.nodes[joint].name, joint, -1);
+    }
+
+    for (auto &joint : source_skeleton.joints) {
+      for (auto child : glTFModel.nodes[joint].children) {
+        skeleton.setParent(child, joint);
+      }
+    }
+
+    // Check if inverse bind matrices exists for this source_skeleton, use it to
+    // creates accessor, bufferView and buffer.
+    if (source_skeleton.inverseBindMatrices != -1) {
+      auto &inverse_bind_matrices =
+          glTFModel.accessors[source_skeleton.inverseBindMatrices];
+      auto &buffer_view =
+          glTFModel.bufferViews[inverse_bind_matrices.bufferView];
+      auto &buffer = glTFModel.buffers[buffer_view.buffer];
+
+      // access the ptr.
+      const uint8_t *base = &buffer.data.at(buffer_view.byteOffset +
+                                            inverse_bind_matrices.byteOffset);
+
+      // Depending upon the type of data that is being stored, we can convert
+      // the pointer into corresponding type.
+      switch (inverse_bind_matrices.componentType) {
+      case TINYGLTF_COMPONENT_TYPE_FLOAT: {
+        const float *p = (float *)base;
+        for (size_t i = 0; i < inverse_bind_matrices.count; ++i) {
+          glm::mat4 inverse_bind_matrix = glm::mat4(1.0f);
+          for (size_t j = 0; j < 16; ++j) {
+            std::memcpy(&inverse_bind_matrix, p + i * 16, sizeof(float) * 16);
+          }
+        }
+      }; break;
+      default:
+        std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
+      }
+    }
   }
 }
