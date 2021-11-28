@@ -1,7 +1,6 @@
 #ifndef BONE_H
 #define BONE_H
 
-#include "../core/models.hpp"
 #include "../core/shader.hpp"
 #include "../core/transform.hpp"
 #include "./bone_mesh.hpp"
@@ -26,13 +25,18 @@ struct Joint {
   }
 
   void setLocalTransform(Transform &parent) {
-//    glm::mat4 parentTransform = glm::inverse(parent.toMat4());
-//    glm::mat4 myTransform = this->worldTransform.toMat4();
-//    glm::mat4 local = parentTransform * myTransform;
-//    this->transform = Transform(local);
-    this->transform.position = parent.position - this->worldTransform.position;
-    this->transform.rotation = this->worldTransform.rotation * glm::conjugate(parent.rotation);
-    this->transform.scale = this->worldTransform.scale / parent.scale;
+    glm::mat4 parentTransform = glm::inverse(parent.toMat4());
+    glm::mat4 myTransform = this->worldTransform.toMat4();
+    glm::mat4 local = parentTransform * myTransform;
+    this->transform = Transform(local);
+    // TODO: Fix this block later.
+
+    //    this->transform.rotation =
+    //        this->worldTransform.rotation * glm::conjugate(parent.rotation);
+    //    this->transform.scale = this->worldTransform.scale / parent.scale;
+    //    this->transform.position =
+    //        (parent.position - this->worldTransform.position) *
+    //        this->transform.scale;
   }
 
   void setTransform(const Transform &transform) { this->transform = transform; }
@@ -42,11 +46,19 @@ struct Joint {
   // friend std::ostream &operator<<(std::ostream &os, const Joint &j);
   unsigned int getParent() { return parent; }
 
+  void setBindTransforms() {
+    this->bindTransform = this->transform;
+    this->bindWorldTransform = this->worldTransform;
+  }
+
   unsigned int id;
   unsigned int parent;
   std::string name;
   Transform transform;
   Transform worldTransform;
+
+  Transform bindTransform;
+  Transform bindWorldTransform;
   // Joint also has inverse bind pose transform.
   glm::mat4 inverseBindPose;
 };
@@ -149,6 +161,12 @@ struct Skeleton {
     }
   }
 
+  void bindTransforms() {
+    for (auto &j : joints) {
+      j.setBindTransforms();
+    }
+  }
+
   void setLocalTransform() {
     for (int i = 0; i < joints.size(); i++) {
       auto joint = &joints[i];
@@ -182,6 +200,13 @@ struct Skeleton {
     }
   }
 
+  Joint &get_joint(std::string name) {
+    auto joint_id = findJointIdx(name);
+    return (Joint &)joints[joint_id];
+  }
+
+  Joint &get_joint(int id) { return (Joint &)joints[id]; }
+
   unsigned int size() { return joints.size(); }
 
 private:
@@ -194,7 +219,8 @@ private:
         return i;
       }
     }
-    return -1; // This means the id doesn't exist which is never going to happen.
+    return -1; // This means the id doesn't exist which is never going to
+               // happen.
   }
 
   // Find the index of the joint with given name.
@@ -204,7 +230,8 @@ private:
         return i;
       }
     }
-    return -1; // This means the id doesn't exist which is never going to happen.
+    return -1; // This means the id doesn't exist which is never going to
+               // happen.
   }
 };
 

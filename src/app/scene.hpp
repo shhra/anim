@@ -68,7 +68,10 @@ public:
     }
 
     anim.initRestFrame(rotations, positions);
+    anim.setRetargeter();
+    anim.bind();
     model.load();
+    model.skeleton.bindTransforms();
   }
 
   void render(float screen_width, float screen_height) {
@@ -79,7 +82,7 @@ public:
     shader.setMat4("view", view);
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
-    anim.play(shader);
+    anim.play(shader, &model.skeleton);
 //    model.Draw(shader);
     model.skeleton.drawJoints(shader, bone);
 

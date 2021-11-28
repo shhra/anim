@@ -31,7 +31,7 @@ add_executable(visualization
   
   src/animation/bone.hpp
   src/animation/bone_mesh.hpp
-)
+        src/animation/retargeter.hpp src/animation/retargeter.cpp)
 
 target_link_libraries(visualization glfw ${GLFW_LIBRARIES}
   tinygltf ${TINYGLTF_LIBRARIES})

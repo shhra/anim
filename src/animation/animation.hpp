@@ -5,13 +5,14 @@
 #include "bone.hpp"
 #include "bone_mesh.hpp"
 #include "frame.hpp"
+#include "retargeter.hpp"
 #include "vector"
 
 class Animation {
 public:
   Animation() {
     frames = {};
-    skeleton = Skeleton();
+    this->skeleton = Skeleton();
     bone = BoneMesh();
     index = 0;
   }
@@ -49,15 +50,26 @@ public:
     }
     frames.push_back(data);
   }
+  void setRetargeter() {
+    animRetarget = AnimationRetargetter(&this->skeleton);
+  }
 
-  void play(Shader &shader) {
+  void bind() {
+    skeleton.bindTransforms();
+  }
+
+  void play(Shader &shader, Skeleton* target = nullptr) {
     if (index >= frames.size()) {
       index = 0;
       activeFrame = initFrame;
     }
     skeleton.setTransforms(activeFrame);
-    // skeleton.setWorldTransforms(activeFrame);
     skeleton.setWorldTransforms();
+
+    // Use this skeleton to retarget another skeleton.
+    if(target != nullptr)
+      animRetarget.retarget(target);
+
     skeleton.drawJoints(shader, bone);
     if (frames.size() > 0) {
       // Current frame * prev frame. This helps bring to current frame reference.
@@ -77,6 +89,7 @@ private:
   BoneMesh bone;
   // High Risk: Data race. Better method needed.
   int index;
+  AnimationRetargetter animRetarget;
 };
 
 #endif // ANIMATION_H_

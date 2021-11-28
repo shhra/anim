@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../src/animation/bone.hpp"
+#include "../animation/bone.hpp"
 #include "mesh.hpp"
 #include "shader.hpp"
 
