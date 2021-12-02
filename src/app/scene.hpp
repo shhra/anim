@@ -61,9 +61,9 @@ public:
       anim_rotations.push_back(r2);
       anim_rotations.push_back(r3);
       if (j < 180) {
-        anim.addFrame(anim_rotations, glm::vec3(0.01f));
+        anim.addFrame(anim_rotations, glm::vec3(0.00f));
       } else {
-        anim.addFrame(anim_rotations, glm::vec3(-0.01f));
+        anim.addFrame(anim_rotations, glm::vec3(-0.00f));
       }
     }
 
@@ -72,6 +72,7 @@ public:
     anim.bind();
     model.load();
     model.skeleton.bindTransforms();
+    model.skeleton.log();
   }
 
   void render(float screen_width, float screen_height) {
@@ -106,6 +107,7 @@ private:
   Animation anim;
   BoneMesh bone = BoneMesh();
   Model model =
-      Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+      // Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+      Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
 };
 #endif // SCENE_H_

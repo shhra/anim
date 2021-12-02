@@ -49,7 +49,15 @@ struct Joint {
   void setBindTransforms() {
     this->bindTransform = this->transform;
     this->bindWorldTransform = this->worldTransform;
-    this->inverseBindPose = glm::inverse(bindWorldTransform.toMat4());
+    this->inverseBindPose = glm::inverse(this->worldTransform.toMat4());
+  }
+
+  void bindUniforms(Shader &shader) {
+    std::string name = "inversebindPose[" + std::to_string(id) + "]";
+    shader.setMat4(name, inverseBindPose);
+
+    std::string world_name = "worldPose[" + std::to_string(id) + "]";
+    shader.setMat4(world_name, worldTransform.toMat4());
   }
 
   unsigned int id;
@@ -72,19 +80,20 @@ struct Skeleton {
     // Also print all the joint name and its parent name is prettified format.
     for (auto &j : joints) {
       if (j.parent == -1) {
-        std::cout << "Joint " << j.name << " has no parent.\n";
+        std::cout << "Joint " << j.name << " (id: " << j.id
+                  << ") has no parent.\n";
       } else {
-        std::cout << "Joint " << j.name << " has parent "
+        std::cout << "Joint " << j.name << "(id: " << j.id << ") has parent "
                   << joints[j.parent].name << ".\n";
       }
 
-      // Print it's local transform.
-      std::cout << "Joint " << j.name << "'s local transform is:\n"
-                << glm::to_string(j.transform.toMat4()) << "\n";
+      // // Print it's local transform.
+      // std::cout << "Joint " << j.name << "'s local transform is:\n"
+      //           << glm::to_string(j.transform.toMat4()) << "\n";
 
-      // Also print it's world transform.
-      std::cout << "Joint " << j.name << "'s world transform is "
-                << glm::to_string(j.worldTransform.toMat4()) << ".\n";
+      // // Also print it's world transform.
+      // std::cout << "Joint " << j.name << "'s world transform is "
+      //           << glm::to_string(j.worldTransform.toMat4()) << ".\n";
     }
   }
 
@@ -180,16 +189,15 @@ struct Skeleton {
   }
 
   void bindUniforms(Shader &shader) {
-    for (int i = 0; i < joints.size(); i++) {
-      // Fetch the inverse bose and bind it.
-      auto joint = this->get_joint(i);
+    for (auto &joint : joints)
+      joint.bindUniforms(shader);
+    // for (int id = 0 ; id < joints.size(); id++) {
+    //   std::string name = "inversebindPose[" + std::to_string(id) + "]";
+    //   shader.setMat4(name, joints[id].inverseBindPose);
 
-      std::string name = "inversebindPose[" + std::to_string(i) + "]";
-      shader.setMat4(name, joint.inverseBindPose);
-
-      std::string world_name = "worldPose[" + std::to_string(i) + "]";
-      shader.setMat4(world_name, joint.worldTransform.toMat4());
-    }
+    //   std::string world_name = "worldPose[" + std::to_string(id) + "]";
+    //   shader.setMat4(world_name, joints[id].worldTransform.toMat4());
+    // }
   }
 
   void setWorldTransforms(std::string joint_name, glm::mat4 transform) {

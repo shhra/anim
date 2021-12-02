@@ -71,11 +71,16 @@ private:
     glBufferSubData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3),
                     normals.size() * sizeof(glm::vec3), &normals[0]);
 
-    glBufferSubData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3),
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    positions.size() * sizeof(glm::vec3) +
+                        normals.size() * sizeof(glm::vec3),
                     joint_indices.size() * sizeof(glm::ivec4),
                     &joint_indices[0]);
 
-    glBufferSubData(GL_ARRAY_BUFFER, joint_indices.size() * sizeof(glm::ivec4),
+    glBufferSubData(GL_ARRAY_BUFFER,
+                    positions.size() * sizeof(glm::vec3) +
+                        normals.size() * sizeof(glm::vec3) +
+                        joint_indices.size() * sizeof(glm::ivec4),
                     joint_weights.size() * sizeof(glm::vec4),
                     &joint_weights[0]);
 
@@ -83,11 +88,14 @@ private:
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3),
                           (void *)(sizeof(glm::vec3) * positions.size()));
 
-    glVertexAttribPointer(2, 4, GL_INT, GL_FALSE, sizeof(glm::ivec4),
-                          (void *)(sizeof(glm::vec3) * normals.size()));
+    glVertexAttribIPointer(
+        2, 4, GL_INT, sizeof(glm::ivec4),
+        (void *)(sizeof(glm::vec3) * (positions.size() + normals.size())));
 
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4),
-                          (void *)(sizeof(glm::ivec4) * joint_indices.size()));
+    glVertexAttribPointer(
+        3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4),
+        (void *)(sizeof(glm::vec3) * (positions.size() + normals.size()) +
+                 sizeof(glm::ivec4) * joint_indices.size()));
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

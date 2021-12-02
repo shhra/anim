@@ -1,17 +1,21 @@
 #include "retargeter.hpp"
 
 void AnimationRetargetter::retarget(Skeleton *target) {
-  Joint &src_bone = source->get_joint("root");
-  Joint &tar_bone = target->get_joint("start");
+  // Joint &src_bone = source->get_joint("root");
+  // Joint &tar_bone = target->get_joint("start");
 
-  auto rotate = [&](Joint* src_bone, Joint *tar_bone) {
+  auto rotate = [&](Joint *src_bone, Joint *tar_bone) {
     // Source's parent rotation.
-    auto src_a = (src_bone->parent == -1) ? src_bone->bindWorldTransform.rotation :
-        source->get_joint(src_bone->parent).bindWorldTransform.rotation;
+    auto src_a =
+        (src_bone->parent == -1)
+            ? src_bone->bindWorldTransform.rotation
+            : source->get_joint(src_bone->parent).bindWorldTransform.rotation;
 
     // Target's parent rotation.
-    auto tar_a = (tar_bone->parent == -1) ? tar_bone->bindWorldTransform.rotation :
-                 target->get_joint(tar_bone->parent).bindWorldTransform.rotation;
+    auto tar_a =
+        (tar_bone->parent == -1)
+            ? tar_bone->bindWorldTransform.rotation
+            : target->get_joint(tar_bone->parent).bindWorldTransform.rotation;
     tar_a = glm::inverse(tar_a);
 
     // Handle rotation change.
@@ -34,18 +38,24 @@ void AnimationRetargetter::retarget(Skeleton *target) {
   };
   // Handle rotation.
 
+  Joint &src_bone = source->get_joint("root");
+  // Joint &tar_bone = target->get_joint("torso_joint_3");
+  Joint &tar_bone = target->get_joint("start");
   rotate(&src_bone, &tar_bone);
 
   Joint &sb2 = source->get_joint("first");
   Joint &tb2 = target->get_joint("first");
+  // Joint &tb2 = target->get_joint("arm_joint_L_1");
   rotate(&sb2, &tb2);
 
   Joint &sb3 = source->get_joint("second");
   Joint &tb3 = target->get_joint("second");
+  // Joint &tb3 = target->get_joint("arm_joint_L_2");
   rotate(&sb3, &tb3);
 
   Joint &sb4 = source->get_joint("third");
   Joint &tb4 = target->get_joint("third");
+  // Joint &tb4 = target->get_joint("arm_joint_L_3");
   rotate(&sb4, &tb4);
 
   bool hip = true;

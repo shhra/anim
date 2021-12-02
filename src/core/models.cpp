@@ -136,7 +136,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = (int)data[i];
+              joint[i] = (unsigned int)data[i];
             }
             active_mesh.addJoint(joint);
           }
@@ -149,7 +149,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = (int)data[i];
+              joint[i] = (unsigned int)data[i];
             }
             active_mesh.addJoint(joint);
           }
@@ -233,6 +233,8 @@ void Model::loadSkeleton() {
       }
     }
 
+    // TODO: Load these inverse bind matrices.
+
     // Check if inverse bind matrices exists for this source_skeleton, use it to
     // creates accessor, bufferView and buffer.
     if (source_skeleton.inverseBindMatrices != -1) {
@@ -257,6 +259,8 @@ void Model::loadSkeleton() {
             std::memcpy(&inverse_bind_matrix, p + i * 16, sizeof(float) * 16);
           }
         }
+
+
       }; break;
       default:
         std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;

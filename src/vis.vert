@@ -18,15 +18,17 @@ uniform bool is_skin;
 
 void main()
 {
-    // mat4 skin = (worldPose[joints.x]* inversebindPose[joints.x]) * weights.x;
-    mat4 skin = (worldPose[joints.x]* inversebindPose[joints.x]) * weights.x;
+    bool is_skin = false;
+    // ivec4 joints = ivec4(0, 1, 2, 3);
+    // vec4 weights = vec4(0.25);
+    mat4 skin = (worldPose[joints.x] * inversebindPose[joints.x]) * weights.x;
     skin += (worldPose[joints.y] * inversebindPose[joints.y]) * weights.y;
     skin += (worldPose[joints.z] * inversebindPose[joints.z]) * weights.z;
     skin += (worldPose[joints.w] * inversebindPose[joints.w]) * weights.w;
+
     if (is_skin) {
         FragPos = vec3(model * skin * vec4(aPos, 1.0));
         Normal = vec3( skin * vec4(aNormal, 0.0));
-        Normal = aNormal;
     } else {
         FragPos = vec3(model * vec4(aPos, 1.0));
         Normal = aNormal;
