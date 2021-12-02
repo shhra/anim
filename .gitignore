@@ -5,3 +5,12 @@ tmp/
 
 debug/
 .ccls-cache/
+*.org
+*.bin
+*.mtl
+*.obj
+*.png
+*.xopp
+cmake-build-debug/
+*.blend*
+*.gl*
