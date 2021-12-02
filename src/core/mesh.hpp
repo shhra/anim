@@ -54,6 +54,7 @@ private:
 
   // initializes all the buffer objects/arrays
   void setupMesh() {
+
     // create buffers/arrays
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -72,14 +73,12 @@ private:
                     normals.size() * sizeof(glm::vec3), &normals[0]);
 
     glBufferSubData(GL_ARRAY_BUFFER,
-                    positions.size() * sizeof(glm::vec3) +
-                        normals.size() * sizeof(glm::vec3),
+                    (positions.size() + normals.size()) * sizeof(glm::vec3),
                     joint_indices.size() * sizeof(glm::ivec4),
                     &joint_indices[0]);
 
     glBufferSubData(GL_ARRAY_BUFFER,
-                    positions.size() * sizeof(glm::vec3) +
-                        normals.size() * sizeof(glm::vec3) +
+                    (positions.size() + normals.size()) * sizeof(glm::vec3) +
                         joint_indices.size() * sizeof(glm::ivec4),
                     joint_weights.size() * sizeof(glm::vec4),
                     &joint_weights[0]);

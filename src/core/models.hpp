@@ -66,7 +66,7 @@ private:
   std::string err, warn;
   void loadModel(std::string const &path);
   void loadIndices(tinygltf::Primitive &primitive);
-  void loadNode(tinygltf::Node &nodes, glm::mat4 transform);
+  void loadNode(tinygltf::Node &nodes, int nodeIdx, glm::mat4 transform);
   void loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform);
   void loadSkeleton();
 };

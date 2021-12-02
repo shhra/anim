@@ -39,24 +39,23 @@ void AnimationRetargetter::retarget(Skeleton *target) {
   // Handle rotation.
 
   Joint &src_bone = source->get_joint("root");
-  // Joint &tar_bone = target->get_joint("torso_joint_3");
+  // Joint &tar_bone = target->get_joint("arm_joint_1");
   Joint &tar_bone = target->get_joint("start");
   rotate(&src_bone, &tar_bone);
 
   Joint &sb2 = source->get_joint("first");
   Joint &tb2 = target->get_joint("first");
-  // Joint &tb2 = target->get_joint("arm_joint_L_1");
+  // Joint &tb2 = target->get_joint("arm_joint_L_2");
   rotate(&sb2, &tb2);
 
   Joint &sb3 = source->get_joint("second");
   Joint &tb3 = target->get_joint("second");
-  // Joint &tb3 = target->get_joint("arm_joint_L_2");
+  // Joint &tb3 = target->get_joint("arm_joint_L_3");
   rotate(&sb3, &tb3);
 
-  Joint &sb4 = source->get_joint("third");
-  Joint &tb4 = target->get_joint("third");
-  // Joint &tb4 = target->get_joint("arm_joint_L_3");
-  rotate(&sb4, &tb4);
+  // Joint &sb4 = source->get_joint("third");
+  // Joint &tb4 = target->get_joint("third");
+  // rotate(&sb4, &tb4);
 
   bool hip = true;
   if (hip) {

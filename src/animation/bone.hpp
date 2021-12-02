@@ -191,21 +191,15 @@ struct Skeleton {
   void bindUniforms(Shader &shader) {
     for (auto &joint : joints)
       joint.bindUniforms(shader);
-    // for (int id = 0 ; id < joints.size(); id++) {
-    //   std::string name = "inversebindPose[" + std::to_string(id) + "]";
-    //   shader.setMat4(name, joints[id].inverseBindPose);
-
-    //   std::string world_name = "worldPose[" + std::to_string(id) + "]";
-    //   shader.setMat4(world_name, joints[id].worldTransform.toMat4());
-    // }
   }
 
-  void setWorldTransforms(std::string joint_name, glm::mat4 transform) {
+  void setWorldTransforms(std::string joint_name, int jointIdx, glm::mat4 transform) {
     int joint_id = findJointIdx(joint_name);
     if (joint_id == -1) {
       return;
     }
     auto active_joint = &joints[joint_id];
+    assert(active_joint->id == jointIdx);
     auto trans = Transform(transform);
     active_joint->setWorldTransform(trans);
   }

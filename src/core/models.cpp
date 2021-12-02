@@ -21,14 +21,14 @@ void Model::loadModel(std::string const &path) {
   // Each scene will have multiple nodes, there we have to load the nodes for
   // each of these scene.
   for (auto &node : scene.nodes) {
-    loadNode(glTFModel.nodes[node], glm::mat4(1.0));
+    loadNode(glTFModel.nodes[node], node, glm::mat4(1.0));
   }
 
   skeleton.setLocalTransform();
-//  skeleton.log();
+  //  skeleton.log();
 }
 
-void Model::loadNode(tinygltf::Node &node, glm::mat4 transform) {
+void Model::loadNode(tinygltf::Node &node, int nodeIdx, glm::mat4 transform) {
   // Each gltf file consists of multiple nodes. Nodes can form a hierarchial
   // structure. Therefore these nodes can be traversered recursively.
   glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -55,14 +55,14 @@ void Model::loadNode(tinygltf::Node &node, glm::mat4 transform) {
 
   auto worldTransform = transform * localTransform;
 
-  skeleton.setWorldTransforms(node.name, worldTransform);
+  skeleton.setWorldTransforms(node.name, nodeIdx, worldTransform);
 
   if (node.mesh >= 0) {
     loadMesh(glTFModel.meshes[node.mesh], worldTransform);
   }
 
   for (auto &child : node.children) {
-    loadNode(glTFModel.nodes[child], worldTransform);
+    loadNode(glTFModel.nodes[child], child, worldTransform);
   }
 }
 
@@ -136,9 +136,10 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = (unsigned int)data[i];
+              joint[i] = glTFModel.skins[0].joints[data[i]];
             }
             active_mesh.addJoint(joint);
+            std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
           }
         } else if (accessor.componentType ==
                    TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
@@ -149,9 +150,10 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = (unsigned int)data[i];
+              joint[i] = glTFModel.skins[0].joints[data[i]];
             }
             active_mesh.addJoint(joint);
+            std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -173,6 +175,8 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
               weight[i] = data[i];
             }
             active_mesh.addWeight(weight);
+            // std::cout << "Weights data: " << glm::to_string(weight)
+            //           << std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -259,8 +263,6 @@ void Model::loadSkeleton() {
             std::memcpy(&inverse_bind_matrix, p + i * 16, sizeof(float) * 16);
           }
         }
-
-
       }; break;
       default:
         std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;

@@ -61,9 +61,9 @@ public:
       anim_rotations.push_back(r2);
       anim_rotations.push_back(r3);
       if (j < 180) {
-        anim.addFrame(anim_rotations, glm::vec3(0.00f));
+        anim.addFrame(anim_rotations, glm::vec3(0.01f));
       } else {
-        anim.addFrame(anim_rotations, glm::vec3(-0.00f));
+        anim.addFrame(anim_rotations, glm::vec3(-0.01f));
       }
     }
 
@@ -85,7 +85,7 @@ public:
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
     anim.play(shader, &model.skeleton);
-    model.skeleton.drawJoints(shader, bone);
+    // model.skeleton.drawJoints(shader, bone);
     shader.setBool("is_skin", true);
     model.skeleton.bindUniforms(shader);
     model.Draw(shader);
@@ -107,7 +107,7 @@ private:
   Animation anim;
   BoneMesh bone = BoneMesh();
   Model model =
-      // Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
-      Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+      Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+      // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
 };
 #endif // SCENE_H_
