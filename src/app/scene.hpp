@@ -78,14 +78,16 @@ public:
     glm::mat4 projection = glm::perspective(
         glm::radians(cam.Zoom), screen_width / screen_height, 0.1f, 100.0f);
     glm::mat4 view = cam.GetViewMatrix();
+    shader.setBool("is_skin", false);
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
     anim.play(shader, &model.skeleton);
-//    model.Draw(shader);
     model.skeleton.drawJoints(shader, bone);
-
+    shader.setBool("is_skin", true);
+    model.skeleton.bindUniforms(shader);
+    model.Draw(shader);
   }
 
   void processInputs(float x, float y, bool pan, bool rotate) {
@@ -103,6 +105,7 @@ private:
   Grid grid;
   Animation anim;
   BoneMesh bone = BoneMesh();
-  Model model = Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+  Model model =
+      Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
 };
 #endif // SCENE_H_

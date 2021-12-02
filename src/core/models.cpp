@@ -131,27 +131,27 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
           // Now load the joint data into the mesh.
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
-            glm::vec4 joint = glm::vec4(0.0f);
+            glm::ivec4 joint = glm::ivec4(0);
             auto *base =
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = data[i];
+              joint[i] = (int)data[i];
             }
-            active_mesh.addJoint(glm::vec4(joint));
+            active_mesh.addJoint(joint);
           }
         } else if (accessor.componentType ==
                    TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
           // Now load this joint data into the mesh.
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
-            glm::vec4 joint = glm::vec4(0.0f);
+            glm::ivec4 joint = glm::ivec4(0);
             auto *base =
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = data[i];
+              joint[i] = (int)data[i];
             }
-            active_mesh.addJoint(glm::vec4(joint));
+            active_mesh.addJoint(joint);
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -172,6 +172,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               weight[i] = data[i];
             }
+            active_mesh.addWeight(weight);
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
