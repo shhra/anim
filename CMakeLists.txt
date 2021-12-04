@@ -30,8 +30,12 @@ add_executable(visualization
   src/app/scene.hpp
   
   src/animation/bone.hpp
+  src/animation/bone.cpp
   src/animation/bone_mesh.hpp
-        src/animation/retargeter.hpp src/animation/retargeter.cpp)
+  src/animation/bvhimporter.hpp
+  src/animation/bvhimporter.cpp
+  src/animation/retargeter.hpp
+  src/animation/retargeter.cpp)
 
 target_link_libraries(visualization glfw ${GLFW_LIBRARIES}
   tinygltf ${TINYGLTF_LIBRARIES})

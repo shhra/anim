@@ -6,13 +6,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-
+#include "animation/bvhimporter.hpp"
 #include "core/camera.hpp"
 #include "core/grid.hpp"
 #include "core/models.hpp"
 #include "core/shader.hpp"
 #include "core/window.hpp"
-
 
 #include "app/scene.hpp"
 
@@ -23,24 +22,33 @@
 
 #include <iostream>
 
-int main() {
+// int main() {
 
-  Window window = Window(800, 600);
+//   Window window = Window(800, 600);
 
-  window.initWindow();
-  window.createContext();
-  Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
-              "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
+//   window.initWindow();
+//   window.createContext();
+//   Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
+//               "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
 
-  window.postContext(&scene);
-  while(!glfwWindowShouldClose(window.getContext())){
-    window.handleInput();
-    window.render(scene);
-    window.pollevents(scene);
-  }
 
-  glfwTerminate();
+//   window.postContext(&scene);
+//   while (!glfwWindowShouldClose(window.getContext())) {
+//     window.handleInput();
+//     window.render(scene);
+//     window.pollevents(scene);
+//   }
 
-  return 0;
+//   glfwTerminate();
+
+//   return 0;
+// }
+
+
+int main () {
+  BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+              "LocomotionFlat01_000.bvh");
+
+  // BVHImporter data("/home/shailesh/Projects/Study/Visualization/assets/data.bvh");
 
 }

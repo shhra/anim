@@ -58,7 +58,7 @@ void Model::loadNode(tinygltf::Node &node, int nodeIdx, glm::mat4 transform) {
   skeleton.setWorldTransforms(node.name, nodeIdx, worldTransform);
 
   if (node.mesh >= 0) {
-    loadMesh(glTFModel.meshes[node.mesh], worldTransform);
+    loadMesh(glTFModel.meshes[node.mesh], node.skin, worldTransform);
   }
 
   for (auto &child : node.children) {
@@ -66,7 +66,7 @@ void Model::loadNode(tinygltf::Node &node, int nodeIdx, glm::mat4 transform) {
   }
 }
 
-void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
+void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
   glm::mat3 normalTransform =
       glm::transpose(glm::inverse(glm::mat3(transform)));
 
@@ -136,7 +136,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = glTFModel.skins[0].joints[data[i]];
+              joint[i] = glTFModel.skins[skin_id].joints[data[i]];
             }
             active_mesh.addJoint(joint);
             std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
@@ -150,7 +150,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = glTFModel.skins[0].joints[data[i]];
+              joint[i] = glTFModel.skins[skin_id].joints[data[i]];
             }
             active_mesh.addJoint(joint);
             std::cout << "Joint data: " << glm::to_string(joint) << std::endl;

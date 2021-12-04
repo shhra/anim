@@ -11,247 +11,146 @@
 #include "memory"
 #include "string.h"
 
+// A joint presents a bone in the skeleton. Each joint can be considered as
+// a node in the skeleton. Joint can also help in skinning of the mesh.
+// Joints are required to drive the skeletal animation of any given character
+// mesh.
 struct Joint {
-  // TODO: Create a memory copy constructor.
-  Joint(std::string bone_name, unsigned int bone_id, unsigned int parent_id) {
-    name = bone_name;
-    id = bone_id;
-    parent = parent_id;
-    transform = Transform();
-  }
+  Joint(std::string bone_name, unsigned int bone_id, unsigned int parent_id);
 
-  void setWorldTransform(const Transform &parent) {
-    worldTransform = this->transform * parent;
-  }
+  //! Simply copies the transform.
+  //! TODO: Find implementation. Can be removed.
+  void setTransform(const Transform &transform);
 
-  void setLocalTransform(Transform &parent) {
-    glm::mat4 parentTransform = glm::inverse(parent.toMat4());
-    glm::mat4 myTransform = this->worldTransform.toMat4();
-    glm::mat4 local = parentTransform * myTransform;
-    this->transform = Transform(local);
-    // TODO: Fix this block later.
+  //! Calculates the local transform. It requires parents world transform.
+  void setLocalTransform(Transform &parent);
 
-    //    this->transform.rotation =
-    //        this->worldTransform.rotation * glm::conjugate(parent.rotation);
-    //    this->transform.scale = this->worldTransform.scale / parent.scale;
-    //    this->transform.position =
-    //        (parent.position - this->worldTransform.position) *
-    //        this->transform.scale;
-  }
+  //! Calculates the world transform. It requires parents world transform.
+  void setWorldTransform(const Transform &parent);
 
-  void setTransform(const Transform &transform) { this->transform = transform; }
+  //! It sets the default value as the bind pose.
+  void setBindTransforms();
 
-  void setParent(unsigned int parent_id) { parent = parent_id; }
+  //! It is necessary for skinning. This sets the uniforms for the inverse bind
+  //! transforms as well as current world transform.
+  void bindUniforms(Shader &shader);
 
-  // friend std::ostream &operator<<(std::ostream &os, const Joint &j);
-  unsigned int getParent() { return parent; }
+  unsigned int getParent();
+  void setParent(unsigned int parent_id);
 
-  void setBindTransforms() {
-    this->bindTransform = this->transform;
-    this->bindWorldTransform = this->worldTransform;
-    this->inverseBindPose = glm::inverse(this->worldTransform.toMat4());
-  }
-
-  void bindUniforms(Shader &shader) {
-    std::string name = "inversebindPose[" + std::to_string(id) + "]";
-    shader.setMat4(name, inverseBindPose);
-
-    std::string world_name = "worldPose[" + std::to_string(id) + "]";
-    shader.setMat4(world_name, worldTransform.toMat4());
-  }
-
+  //! This id is used to identify the joints when creating the skeleton from
+  //! glTF file.
   unsigned int id;
+
+  //! Each joint has references to the parent. Instead of allowing the parents
+  //! to have children, here we refere to the parent.
   unsigned int parent;
+
+  //! Joint name is required for the retargeting the animation. It also plays
+  //! important role in identifying the nodes in glTF file.
   std::string name;
+
+  //! The transform and worldTransform of the joint change during the animation
+  //! cycle. These represent the pose transformation.
   Transform transform;
+
+  //! See definition for transform
   Transform worldTransform;
 
+  //! The bind transforms are default transformations of the joint. Mostly
+  //! These transforms are either T-posed or A-posed to represent the resting
+  //! pose of the joint.
   Transform bindTransform;
+
+  //! See definition for bindTransform.
   Transform bindWorldTransform;
-  // Joint also has inverse bind pose transform.
+
+  //! The inverse bind transforms allow the users to map joints into the skin
+  //! space of the space.
+  //! Since worldTransform * inverseBindTransform = Identiy.
+  //! If the worldTransform is moved, it can be used to find where the skin mesh
+  //! will move.
   glm::mat4 inverseBindPose;
 };
 
+//! A skeleton is a tree that stores the all the bones in that form the skeleton
+//! of the character. It provides necessary functions that allows the users to
+//! set different transforms which will be used in animation.
 struct Skeleton {
-  Skeleton() { joints = std::vector<Joint>{}; }
+  Skeleton();
+  //! Write the logs for the skeleton. It prints only necessary information.
+  //! TODO: create a process to log necessary or desired variables.
+  void log();
 
-  void log() {
-    std::cout << "There are " << joints.size() << " joints.\n";
-    // Also print all the joint name and its parent name is prettified format.
-    for (auto &j : joints) {
-      if (j.parent == -1) {
-        std::cout << "Joint " << j.name << " (id: " << j.id
-                  << ") has no parent.\n";
-      } else {
-        std::cout << "Joint " << j.name << "(id: " << j.id << ") has parent "
-                  << joints[j.parent].name << ".\n";
-      }
+  //! These requires a bone besh to draw the skeleton. The bone is a small mesh
+  //! that can represent a joint. It draws a bone from parent position to it's
+  //! current position
+  void drawJoints(Shader &shader, BoneMesh &joint_model);
 
-      // // Print it's local transform.
-      // std::cout << "Joint " << j.name << "'s local transform is:\n"
-      //           << glm::to_string(j.transform.toMat4()) << "\n";
+  //! This one doesn't require the child id. This can be used when one is
+  //! creating the Skeleton from something like BVH.
+  void addJoint(std::string name, int parent);
 
-      // // Also print it's world transform.
-      // std::cout << "Joint " << j.name << "'s world transform is "
-      //           << glm::to_string(j.worldTransform.toMat4()) << ".\n";
-    }
-  }
+  //! This version requires child id. This is done to align the the glTF joint
+  //! convention.
+  void addJoint(std::string name, int child, int parent);
 
-  void drawJoints(Shader &shader, BoneMesh &joint_model) {
-    for (int i = 1; i < joints.size(); i++) {
-      auto parent = joints[joints[i].parent];
-      auto towards = joints[i].worldTransform.position;
-      auto parentP = parent.worldTransform.position;
-      auto zAxis = glm::vec3(0.0, 0.0, 1.0);
-      auto lookdir = (towards - parentP);
-      auto rotate =
-          glm::mat4_cast(parent.transform.lookAt(lookdir, zAxis).rotation);
+  void setParent(int child, int parent);
 
-      auto scaleFactor = joints[i].worldTransform.scale *
-                         glm::length(joints[i].transform.position);
-      auto translate = glm::translate(glm::mat4(1.f), parentP);
-      auto scale = glm::scale(glm::mat4(1.f), scaleFactor);
-
-      auto world = translate * rotate * scale;
-      // auto world = translate * rotate;
-      shader.setMat4("model", world);
-      joint_model.Draw(shader);
-    }
-  }
-
-  void addJoint(std::string name, int child, int parent) {
-    joints.push_back(Joint(name, child, parent));
-  }
-
-  void addJoint(std::string name, int parent) {
-    int id = joints.size();
-    Joint j = Joint(name, id, parent);
-    joints.push_back(j);
-  }
-
-  void setParent(int child, int parent) {
-    // Find the index of parent joint
-    int parent_id = findJointIdx(parent);
-    // select the child joint with the given id and set its parent to parent_id
-    for (auto &j : joints) {
-      if (j.id == child) {
-        j.setParent(parent_id);
-        break;
-      }
-    }
-  }
-
+  //! It takes quaternion, position and scale to and sets the value to joint
+  //! local transform given by joint_idx
   void setTransforms(int joint_idx, glm::quat joint_orientation,
-                     glm::vec3 joint_offset, glm::vec3 scale = glm::vec3(1.0)) {
+                     glm::vec3 joint_offset, glm::vec3 scale = glm::vec3(1.0));
 
-    // Find the joint position for the given joint index.
-    int joint_id = findJointIdx(joint_idx);
-    auto active_joint = &joints[joint_id];
-    active_joint->transform.position = joint_offset;
-    active_joint->transform.rotation = joint_orientation;
-    active_joint->transform.scale = scale;
-  }
+  //! This version just creates local tranform from the glm::mat4.
+  void setTransforms(std::string joint_name, glm::mat4 transform);
 
-  void setTransforms(std::string joint_name, glm::mat4 transform) {
-    int joint_id = findJointIdx(joint_name);
-    auto active_joint = &joints[joint_id];
-    auto trans = Transform(transform);
-    active_joint->setTransform(trans);
-  }
+  //! Unlike other versrion, this transformation uses animation frame to
+  //! set the local transform.
+  void setTransforms(Frame frame);
 
-  void setTransforms(Frame frame) {
-    for (int i = 0; i < size(); i++) {
-      joints[i].setTransform(frame[i]);
-    }
-  }
+  //! This is optional method and rarely used. Only when you have computed the
+  //! world transformation for the given frame, then it safe to use this.
+  //! Most of the time prefer `setTransforms(Frame frame)` followeb by
+  //! `setWorldTransforms()`
+  void setWorldTransforms(Frame frame);
 
-  void setWorldTransforms(Frame frame) {
-    for (int i = 0; i < size(); i++) {
-      joints[i].setWorldTransform(frame[i]);
-    }
-  }
+  //! It takes the joint_name and jointIdx to set the transform for the given
+  //! joint. It is required when parsing transforms from external format such as
+  //! glTF
+  //! TODO: Remove joint_name.
+  void setWorldTransforms(std::string joint_name, int jointIdx,
+                          glm::mat4 transform);
 
-  void bindTransforms() {
-    for (auto &j : joints) {
-      j.setBindTransforms();
-    }
-  }
+  //! It calculates the world transforms from already set local transform.
+  void setWorldTransforms();
 
-  void setLocalTransform() {
-    for (int i = 0; i < joints.size(); i++) {
-      auto joint = &joints[i];
-      if (joint->parent == -1) {
-        joint->transform = joint->worldTransform;
-      } else {
-        joint->setLocalTransform(joints[joint->parent].worldTransform);
-      }
-    }
-  }
+  //! Call this function once the skeleton is loaded. It will use the default
+  //! transforms to calcuate the bind transforms.
+  void bindTransforms();
 
-  void bindUniforms(Shader &shader) {
-    for (auto &joint : joints)
-      joint.bindUniforms(shader);
-  }
+  //! It calculates the local transforms from initialized world transforms.
+  void setLocalTransform();
 
-  void setWorldTransforms(std::string joint_name, int jointIdx, glm::mat4 transform) {
-    int joint_id = findJointIdx(joint_name);
-    if (joint_id == -1) {
-      return;
-    }
-    auto active_joint = &joints[joint_id];
-    assert(active_joint->id == jointIdx);
-    auto trans = Transform(transform);
-    active_joint->setWorldTransform(trans);
-  }
+  //! Required for skinning.
+  void bindUniforms(Shader &shader);
 
-  void setWorldTransforms() {
-    for (int i = 0; i < joints.size(); i++) {
-      auto joint = &joints[i];
-      if (joint->parent == -1) {
-        joint->worldTransform = joint->transform;
-      } else {
-        joint->setWorldTransform(joints[joint->parent].worldTransform);
-      }
-      // std::cout << *joint;
-    }
-  }
+  //! Use joint name to fetch the joint. Necessary in animation retargetting.
+  Joint &get_joint(std::string name);
 
-  Joint &get_joint(std::string name) {
-    auto joint_id = findJointIdx(name);
-    return (Joint &)joints[joint_id];
-  }
+  //! Use joint id to fetch the joint.
+  Joint &get_joint(int id);
 
-  Joint &get_joint(int id) {
-    auto joint_id = findJointIdx(id);
-    return (Joint &)joints[joint_id];
-  }
-
-  unsigned int size() { return joints.size(); }
+  unsigned int size();
 
 private:
   std::vector<Joint> joints;
 
-  // Find the index of the joint with given id.
-  int findJointIdx(int id) {
-    for (int i = 0; i < joints.size(); i++) {
-      if (joints[i].id == id) {
-        return i;
-      }
-    }
-    return -1; // This means the id doesn't exist which is never going to
-               // happen.
-  }
+  //! Find the index of the joint with given id.
+  int findJointIdx(int id);
 
-  // Find the index of the joint with given name.
-  int findJointIdx(std::string name) {
-    for (int i = 0; i < joints.size(); i++) {
-      if (joints[i].name == name) {
-        return i;
-      }
-    }
-    return -1; // This means the id doesn't exist which is never going to
-               // happen.
-  }
+  //! Find the index of the joint with given name.
+  int findJointIdx(std::string name);
 };
 
 #endif /* BONE_H*/
