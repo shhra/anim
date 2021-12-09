@@ -22,33 +22,33 @@
 
 #include <iostream>
 
-// int main() {
+int main() {
 
-//   Window window = Window(800, 600);
+  Window window = Window(800, 600);
 
-//   window.initWindow();
-//   window.createContext();
-//   Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
-//               "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
-
-
-//   window.postContext(&scene);
-//   while (!glfwWindowShouldClose(window.getContext())) {
-//     window.handleInput();
-//     window.render(scene);
-//     window.pollevents(scene);
-//   }
-
-//   glfwTerminate();
-
-//   return 0;
-// }
+  window.initWindow();
+  window.createContext();
+  Scene scene("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
+              "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
 
 
-int main () {
-  BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
-              "LocomotionFlat01_000.bvh");
+  // window.postContext(&scene);
+  // while (!glfwWindowShouldClose(window.getContext())) {
+  //   window.handleInput();
+  //   window.render(scene);
+  //   window.pollevents(scene);
+  // }
 
-  // BVHImporter data("/home/shailesh/Projects/Study/Visualization/assets/data.bvh");
+  glfwTerminate();
 
+  return 0;
 }
+
+
+// int main () {
+//   // BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+//   //             "LocomotionFlat01_000.bvh");
+
+//   // BVHImporter data("/home/shailesh/Projects/Study/Visualization/assets/data.bvh");
+
+// }

@@ -4,6 +4,7 @@
 #include "../animation/animation.hpp"
 #include "../animation/bone.hpp"
 #include "../animation/bone_mesh.hpp"
+#include "../animation/bvhimporter.hpp"
 #include "../core/camera.hpp"
 #include "../core/grid.hpp"
 #include "../core/input.hpp"
@@ -84,11 +85,12 @@ public:
     shader.setMat4("view", view);
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
-    anim.play(shader, &model.skeleton);
+    // anim.play(shader, &model.skeleton);
     // model.skeleton.drawJoints(shader, bone);
-    shader.setBool("is_skin", true);
-    model.skeleton.bindUniforms(shader);
-    model.Draw(shader);
+    // shader.setBool("is_skin", true);
+    // model.skeleton.bindUniforms(shader);
+    // model.Draw(shader);
+    data.skeleton.drawJoints(shader, bone);
   }
 
   void processInputs(float x, float y, bool pan, bool rotate) {
@@ -108,6 +110,10 @@ private:
   BoneMesh bone = BoneMesh();
   Model model =
       Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
-      // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+  // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+  //
+  BVHImporter data =
+      BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+                  "LocomotionFlat01_000.bvh");
 };
 #endif // SCENE_H_

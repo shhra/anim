@@ -3,6 +3,8 @@
 
 #include "./bone.hpp"
 #include "./frame.hpp"
+#include <fstream>
+#include <unordered_map>
 
 //! Handles importing of motion capture data stored in BVH format.
 //! It will extract the bones as well as frames for the given animation.
@@ -10,22 +12,33 @@ class BVHImporter {
 public:
   BVHImporter(std::string filename);
 
+  //! Data will be stored in frames.
+  Skeleton skeleton;
+
 private:
   bool parseTree(std::ifstream &fs, int parent);
 
   bool parseNode(std::ifstream &fs, int parent, std::string name);
 
-  bool parseMotion();
+  bool parseJoint(std::ifstream &fs, int parent, std::string name);
+
+  std::string parseChannel(std::ifstream &fs);
+
+  bool parseMotion(std::ifstream &fs);
+
+  //! Number of frames in the animation.
+  int frame_len;
+
+  Frame createFrame(std::string &line);
+
+  //! Time for each frame.
+  float frame_time;
 
   //! Data gets stored in frames.
   std::vector<Frame> frames;
 
-  //! Data will be stored in frames.
-  Skeleton skeleton;
-
-  //! TODO: This is just temp for now.
-  std::vector<int> joints;
-
+  //! A map that stores the channel info for given joint id.
+  std::unordered_map<int, std::string> joint_channels;
 
   //! Skip end
   bool skipEnd(std::string line);
