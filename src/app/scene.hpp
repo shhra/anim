@@ -78,7 +78,7 @@ public:
     model.load();
     this->model.skeleton.bindTransforms();
 
-    Joint &joint = model.skeleton.get_joint(13);
+    Joint &joint = model.skeleton.get_joint(52);
 
     std::cout << "(Before) Joint: " << joint.name
               << " rotation: " << glm::to_string(joint.worldTransform.rotation)
@@ -97,7 +97,7 @@ public:
               << " position: " << glm::to_string(joint.worldTransform.position)
               << std::endl;
 
-    this->model.skeleton.bindTransforms();
+    // this->model.skeleton.bindTransforms();
     model.skeleton.log();
     // this->data.animation.setInit();
   }
@@ -137,8 +137,8 @@ private:
   Animation anim;
   BoneMesh bone = BoneMesh();
   Model model =
-      // Model("/home/shailesh/Projects/Study/Visualization/assets/ninja.gltf");
-  Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+      Model("/home/shailesh/Projects/Study/Visualization/assets/ninja.gltf");
+  // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
   //
   // BVHImporter data =
   //     BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
