@@ -6,6 +6,7 @@
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include <vector>
+#include <iostream>
 
 class Frame {
 public:
@@ -13,7 +14,7 @@ public:
 
   void addFrameData(Transform &transform) {
     // if (transforms.size() == 0) {
-      transforms.push_back(transform);
+    transforms.push_back(transform);
     // } else {
     //   auto result = transform * transforms[transforms.size() - 1];
     //   transforms.push_back(result);
@@ -26,9 +27,10 @@ public:
 
   Frame operator*(const Frame &previous) {
     Frame f = previous;
-    for (int i = 0; i < transforms.size(); i++) {
-      // This transform is the active frame. Therefore it has to be parent for the
-      // previous frame. '*' operator requires passing parent on RHS.
+    f.setValue(0, f[0]);
+    for (int i = 1; i < transforms.size(); i++) {
+      // This transform is the active frame. Therefore it has to be parent for
+      // the previous frame. '*' operator requires passing parent on RHS.
       auto res = f[i] * this->transforms[i];
       f.setValue(i, res);
     }

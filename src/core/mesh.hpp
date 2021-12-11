@@ -40,6 +40,8 @@ public:
   // render the mesh
   void Draw(Shader &shader) {
     glm::mat4 model = glm::mat4(1.0f);
+    // Set the scale of the model to 3.0f.
+    // model = glm::scale(model, glm::vec3(150.0f));
     shader.setMat4("model", model);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

@@ -12,18 +12,17 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform mat4 inversebindPose[100];
-uniform mat4 worldPose[100];
+uniform mat4 inversebindPose[200];
+uniform mat4 worldPose[200];
 uniform bool is_skin;
 
 void main()
 {
-
     // TODO: Determine the joint offsets.
     // ivec4 joints = joints + ivec4(2);
-    // bool is_skin = false;
     // ivec4 joints = ivec4(0, 1, 2, 3);
-    // vec4 weights = vec4(0.25);
+    // vec4 weights = vec4(0.0);
+    // bool is_skin = false;
     mat4 skin = (worldPose[joints.x] * inversebindPose[joints.x]) * weights.x;
     skin += (worldPose[joints.y] * inversebindPose[joints.y]) * weights.y;
     skin += (worldPose[joints.z] * inversebindPose[joints.z]) * weights.z;

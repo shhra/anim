@@ -11,6 +11,10 @@
 #include "../core/shader.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
+#include <chrono>
+#include <glm/ext/quaternion_trigonometric.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <thread>
 
 class Scene {
 public:
@@ -72,8 +76,30 @@ public:
     anim.setRetargeter();
     anim.bind();
     model.load();
-    model.skeleton.bindTransforms();
+    this->model.skeleton.bindTransforms();
+
+    Joint &joint = model.skeleton.get_joint(13);
+
+    std::cout << "(Before) Joint: " << joint.name
+              << " rotation: " << glm::to_string(joint.worldTransform.rotation)
+              << " position: " << glm::to_string(joint.worldTransform.position)
+              << std::endl;
+
+    joint.transform = Transform(
+        glm::vec3(0.0),
+        glm::angleAxis(glm::radians(75.0f), glm::vec3(1.0f, 1.0f, 0.0f)),
+        glm::vec3(1.0f)) * joint.transform;
+    // model.skeleton.setLocalTransform();
+    this->model.skeleton.setWorldTransforms();
+
+    std::cout << "(After ) Joint: " << joint.name
+              << " rotation: " << glm::to_string(joint.worldTransform.rotation)
+              << " position: " << glm::to_string(joint.worldTransform.position)
+              << std::endl;
+
+    this->model.skeleton.bindTransforms();
     model.skeleton.log();
+    // this->data.animation.setInit();
   }
 
   void render(float screen_width, float screen_height) {
@@ -86,11 +112,13 @@ public:
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
     // anim.play(shader, &model.skeleton);
-    // model.skeleton.drawJoints(shader, bone);
-    // shader.setBool("is_skin", true);
-    // model.skeleton.bindUniforms(shader);
-    // model.Draw(shader);
-    data.skeleton.drawJoints(shader, bone);
+    model.skeleton.drawJoints(shader, bone);
+    shader.setBool("is_skin", true);
+    model.skeleton.bindUniforms(shader);
+    model.Draw(shader);
+    /* std::this_thread::sleep_for( */
+    /*     std::chrono::milliseconds((int)(data.frame_time * 2000))); */
+    // data.animation.play(shader, nullptr);
   }
 
   void processInputs(float x, float y, bool pan, bool rotate) {
@@ -109,11 +137,11 @@ private:
   Animation anim;
   BoneMesh bone = BoneMesh();
   Model model =
-      Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
-  // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+      // Model("/home/shailesh/Projects/Study/Visualization/assets/ninja.gltf");
+  Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
   //
-  BVHImporter data =
-      BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
-                  "LocomotionFlat01_000.bvh");
+  // BVHImporter data =
+  //     BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+  //                 "LocomotionFlat01_000.bvh");
 };
 #endif // SCENE_H_

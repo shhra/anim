@@ -139,7 +139,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
               joint[i] = glTFModel.skins[skin_id].joints[data[i]];
             }
             active_mesh.addJoint(joint);
-            std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
+            // std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
           }
         } else if (accessor.componentType ==
                    TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
@@ -153,7 +153,7 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
               joint[i] = glTFModel.skins[skin_id].joints[data[i]];
             }
             active_mesh.addJoint(joint);
-            std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
+            // std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;

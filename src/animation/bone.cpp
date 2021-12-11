@@ -1,4 +1,5 @@
 #include "bone.hpp"
+#include <glm/fwd.hpp>
 
 Joint::Joint(std::string bone_name, unsigned int bone_id,
              unsigned int parent_id) {
@@ -46,6 +47,7 @@ void Joint::setBindTransforms() {
 void Joint::bindUniforms(Shader &shader) {
   std::string name = "inversebindPose[" + std::to_string(id) + "]";
   shader.setMat4(name, inverseBindPose);
+  // Print the inverse bind pose using glm::to_string.
 
   std::string world_name = "worldPose[" + std::to_string(id) + "]";
   shader.setMat4(world_name, worldTransform.toMat4());

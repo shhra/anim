@@ -7,9 +7,12 @@
 #include "frame.hpp"
 #include "retargeter.hpp"
 #include "vector"
+#include <unistd.h>
 
 class Animation {
 public:
+  Skeleton skeleton;
+
   Animation() {
     frames = {};
     this->skeleton = Skeleton();
@@ -50,15 +53,19 @@ public:
     }
     frames.push_back(data);
   }
-  void setRetargeter() {
-    animRetarget = AnimationRetargetter(&this->skeleton);
+
+  void addFrame(Frame &frame) { frames.push_back(frame); }
+
+  void setInit() {
+    initFrame = frames[0];
+    activeFrame = initFrame;
   }
 
-  void bind() {
-    skeleton.bindTransforms();
-  }
+  void setRetargeter() { animRetarget = AnimationRetargetter(&this->skeleton); }
 
-  void play(Shader &shader, Skeleton* target = nullptr) {
+  void bind() { skeleton.bindTransforms(); }
+
+  void play(Shader &shader, Skeleton *target = nullptr) {
     if (index >= frames.size()) {
       index = 0;
       activeFrame = initFrame;
@@ -67,21 +74,22 @@ public:
     skeleton.setWorldTransforms();
 
     // Use this skeleton to retarget another skeleton.
-    if(target != nullptr)
+    if (target != nullptr)
       animRetarget.retarget(target);
 
     skeleton.drawJoints(shader, bone);
-    if (frames.size() > 0) {
-      // Current frame * prev frame. This helps bring to current frame reference.
+    if (frames.size() > 0 && index > 0) {
+      // Current frame * prev frame. This helps bring to current frame
+      // reference.
       auto resultFrame = frames[index] * activeFrame;
-
       activeFrame = resultFrame;
+      /* activeFrame = frames[index]; */ // TODO: Fix is how bvh take the
+                                         // animation.
     }
     index++;
   }
 
 private:
-  Skeleton skeleton;
   std::vector<Frame> frames;
   // The inital frame for the animation.
   Frame initFrame;

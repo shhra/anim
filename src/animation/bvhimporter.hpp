@@ -1,7 +1,7 @@
 #ifndef BVHIMPORTER_H_
 #define BVHIMPORTER_H_
 
-#include "./bone.hpp"
+#include "./animation.hpp"
 #include "./frame.hpp"
 #include <fstream>
 #include <unordered_map>
@@ -13,7 +13,10 @@ public:
   BVHImporter(std::string filename);
 
   //! Data will be stored in frames.
-  Skeleton skeleton;
+  Animation animation;
+
+  //! Time for each frame.
+  float frame_time;
 
 private:
   bool parseTree(std::ifstream &fs, int parent);
@@ -29,10 +32,8 @@ private:
   //! Number of frames in the animation.
   int frame_len;
 
-  Frame createFrame(std::string &line);
+  Frame createFrame(std::string &line, bool first);
 
-  //! Time for each frame.
-  float frame_time;
 
   //! Data gets stored in frames.
   std::vector<Frame> frames;

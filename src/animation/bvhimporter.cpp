@@ -1,7 +1,9 @@
 #include "bvhimporter.hpp"
 #include <fstream>
 #include <glm/fwd.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <ostream>
 #include <stack>
 #include <string>
 
@@ -68,7 +70,7 @@ bool BVHImporter::parseNode(std::ifstream &fs, int parent, std::string name) {
               << parent << std::endl;
     parseJoint(fs, parent, name);
     Line(fs);
-    active_stack.push(skeleton.size() - 1);
+    active_stack.push(animation.skeleton.size() - 1);
     if (skipEnd(line)) {
       for (int i = 0; i < 3; i++) {
         Line(fs);
@@ -108,18 +110,18 @@ bool BVHImporter::parseJoint(std::ifstream &fs, int parent, std::string name) {
   auto position = glm::vec3(x, y, z);
   std::cout << glm::to_string(position) << std::endl;
   // TODO: Make this function that always returns id.
-  skeleton.addJoint(name, parent);
-  auto id = skeleton.get_joint(name).id;
+  animation.skeleton.addJoint(name, parent);
+  auto id = animation.skeleton.get_joint(name).id;
 
   // Fill in the joint offset.
-  skeleton.setTransforms(id, glm::quat(1.0, 0.0, 0.0, 0.0), position);
+  animation.skeleton.setTransforms(id, glm::quat(1.0, 0.0, 0.0, 0.0), position);
 
   // Read the channel data.
   auto channel = parseChannel(fs);
 
   // TODO: Handle error here for empty string.
   // TODO: Be sure that data is written only once.
-  joint_channels[skeleton.get_joint(name).id] = channel;
+  joint_channels[animation.skeleton.get_joint(name).id] = channel;
 
   return true;
 }
@@ -160,23 +162,67 @@ bool BVHImporter::parseMotion(std::ifstream &fs) {
     frame_time = std::stof(split(line)[2]);
   }
 
-  while (!fs.eof()) {
+  for (int i = 0; !fs.eof(); i++) {
     Line(fs);
     // Parse the motion data here.
-    frames.push_back(createFrame(line));
-    break;
+    if (line.length() > 0) {
+      bool first = i == 0 ? true : false;
+      frames.push_back(createFrame(line, first));
+    }
   }
   return true;
 }
 
-Frame BVHImporter::createFrame(std::string &frame_data) {
+Frame BVHImporter::createFrame(std::string &frame_data, bool first) {
   auto data = split(frame_data);
+  Frame frame = Frame();
+  int idx = 0;
 
-  for (int i = 0; i < skeleton.size(); i++) {
-    auto &joint = skeleton.get_joint(i);
+  for (int i = 0; i < animation.skeleton.size(); i++) {
+    auto &joint = animation.skeleton.get_joint(i);
 
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    Transform transform;
+    // Get the joint position
+    if (joint_channels[i] == "XYZZYX") {
+      glm::vec3 scale = glm::vec3(1.0f);
+      position.x = std::stof(data[idx++]);
+      position.y = std::stof(data[idx++]);
+      position.z = std::stof(data[idx++]);
+      if (first) {
+        position += joint.transform.position;
+      }
 
+      // print this position value.
+      std::cout << "Position: " << glm::to_string(position) << std::endl;
 
+      scale = 1.0f * scale;
 
+      // Get the joint orientation from the data. The data is using euler angle.
+      // Convert it to quaternion using appropriate axis.
+      float z = glm::radians(std::stof(data[idx++]));
+      float y = glm::radians(std::stof(data[idx++]));
+      float x = glm::radians(std::stof(data[idx++]));
+
+      orientation *= glm::angleAxis(z, glm::vec3(0.0f, 0.0f, 1.0f));
+      orientation *= glm::angleAxis(y, glm::vec3(0.0f, 1.0f, 0.0f));
+      orientation *= glm::angleAxis(x, glm::vec3(1.0f, 0.0f, 0.0f));
+      transform = Transform(position, orientation, scale);
+    } else if (joint_channels[i] == "ZYX") {
+      float z = glm::radians(std::stof(data[idx++]));
+      float y = glm::radians(std::stof(data[idx++]));
+      float x = glm::radians(std::stof(data[idx++]));
+
+      orientation *= glm::angleAxis(z, glm::vec3(0.0f, 0.0f, 1.0f));
+      orientation *= glm::angleAxis(y, glm::vec3(0.0f, 1.0f, 0.0f));
+      orientation *= glm::angleAxis(x, glm::vec3(1.0f, 0.0f, 0.0f));
+      transform =
+          Transform(joint.transform.position, orientation, glm::vec3(1.0f));
+    }
+
+    frame.addFrameData(transform);
   }
+  animation.addFrame(frame);
+  return frame;
 }
