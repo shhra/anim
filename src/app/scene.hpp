@@ -21,7 +21,7 @@ public:
   Scene() { cam = Camera(10); }
 
   Scene(const char *vert_shader, const char *frag_shader) {
-    cam = Camera(10);
+    cam = Camera(5);
     shader = Shader(vert_shader, frag_shader);
     shader.use();
     grid = Grid(10, 1);
@@ -75,31 +75,52 @@ public:
     anim.initRestFrame(rotations, positions);
     anim.setRetargeter();
     anim.bind();
+    this->data.animation.setInit();
+    this->data.animation.setRetargeter();
+    this->data.animation.skeleton.log();
+
     model.load();
-    this->model.skeleton.bindTransforms();
-
-    Joint &joint = model.skeleton.get_joint(52);
-
-    std::cout << "(Before) Joint: " << joint.name
-              << " rotation: " << glm::to_string(joint.worldTransform.rotation)
-              << " position: " << glm::to_string(joint.worldTransform.position)
-              << std::endl;
-
-    joint.transform = Transform(
-        glm::vec3(0.0),
-        glm::angleAxis(glm::radians(75.0f), glm::vec3(1.0f, 1.0f, 0.0f)),
-        glm::vec3(1.0f)) * joint.transform;
-    // model.skeleton.setLocalTransform();
-    this->model.skeleton.setWorldTransforms();
-
-    std::cout << "(After ) Joint: " << joint.name
-              << " rotation: " << glm::to_string(joint.worldTransform.rotation)
-              << " position: " << glm::to_string(joint.worldTransform.position)
-              << std::endl;
-
-    // this->model.skeleton.bindTransforms();
+    model.skeleton.bindTransforms();
     model.skeleton.log();
-    // this->data.animation.setInit();
+
+    std::vector<std::string> source = {"Hips",
+                                       "LeftUpLeg",
+                                       "LeftLeg",
+                                       "LeftFoot",
+                                       "LeftToeBase",
+                                       "RightUpLeg",
+                                       "RightLeg",
+                                       "RightFoot",
+                                       "RightToeBase",
+                                       "LowerBack",
+                                       "Spine",
+                                       "Spine1",
+                                       "Neck",
+                                       "Neck1",
+                                       "Head",
+                                       "LeftShoulder",
+                                       "LeftArm",
+                                       "LeftForeArm",
+                                       "LeftHand",
+                                       "RightShoulder",
+                                       "RightArm",
+                                       "RightForeArm",
+                                       "RightHand"};
+
+    std::vector<std::string> target = {
+        "mixamorig:Hips",         "mixamorig:LeftUpLeg",
+        "mixamorig:LeftLeg",      "mixamorig:LeftFoot",
+        "mixamorig:LeftToeBase",  "mixamorig:RightUpLeg",
+        "mixamorig:RightLeg",     "mixamorig:RightFoot",
+        "mixamorig:RightToeBase", "mixamorig:LowerBack",
+        "mixamorig:Spine",        "mixamorig:Spine1",
+        "mixamorig:Spine2",       "mixamorig:Neck",
+        "mixamorig:Head",         "mixamorig:LeftShoulder",
+        "mixamorig:LeftArm",      "mixamorig:LeftForeArm",
+        "mixamorig:LeftHand",     "mixamorig:RightShoulder",
+        "mixamorig:RightArm",     "mixamorig:RightForeArm",
+        "mixamorig:RightHand"};
+    this->data.animation.setMap(source, target);
   }
 
   void render(float screen_width, float screen_height) {
@@ -111,13 +132,15 @@ public:
     shader.setMat4("view", view);
     auto unit = glm::mat3(1.0f);
     grid.Draw(shader);
+    data.animation.play(shader, &model.skeleton);
     // anim.play(shader, &model.skeleton);
+    data.animation.skeleton.drawJoints(shader, bone);
     model.skeleton.drawJoints(shader, bone);
     shader.setBool("is_skin", true);
     model.skeleton.bindUniforms(shader);
     model.Draw(shader);
-    /* std::this_thread::sleep_for( */
-    /*     std::chrono::milliseconds((int)(data.frame_time * 2000))); */
+    // std::this_thread::sleep_for(
+    //     std::chrono::milliseconds((int)(data.frame_time * 2000)));
     // data.animation.play(shader, nullptr);
   }
 
@@ -137,11 +160,11 @@ private:
   Animation anim;
   BoneMesh bone = BoneMesh();
   Model model =
-      Model("/home/shailesh/Projects/Study/Visualization/assets/ninja.gltf");
-  // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
+      Model("/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
+  //   Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
   //
-  // BVHImporter data =
-  //     BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
-  //                 "LocomotionFlat01_000.bvh");
+  BVHImporter data =
+      BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+                  "LocomotionFlat02_000.bvh");
 };
 #endif // SCENE_H_

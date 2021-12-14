@@ -10,13 +10,15 @@
 #include "iostream"
 #include "memory"
 #include "string.h"
+#include <cstddef>
+#include <unordered_map>
 
 // A joint presents a bone in the skeleton. Each joint can be considered as
 // a node in the skeleton. Joint can also help in skinning of the mesh.
 // Joints are required to drive the skeletal animation of any given character
 // mesh.
 struct Joint {
-  Joint(std::string bone_name, unsigned int bone_id, unsigned int parent_id);
+  Joint(std::string bone_name, std::size_t bone_id, std::size_t parent_id);
 
   //! Simply copies the transform.
   //! TODO: Find implementation. Can be removed.
@@ -35,16 +37,15 @@ struct Joint {
   //! transforms as well as current world transform.
   void bindUniforms(Shader &shader);
 
-  unsigned int getParent();
-  void setParent(unsigned int parent_id);
+  void setParent(std::size_t parent_id);
 
   //! This id is used to identify the joints when creating the skeleton from
   //! glTF file.
-  unsigned int id;
+  std::size_t id;
 
   //! Each joint has references to the parent. Instead of allowing the parents
   //! to have children, here we refere to the parent.
-  unsigned int parent;
+  std::size_t parent;
 
   //! Joint name is required for the retargeting the animation. It also plays
   //! important role in identifying the nodes in glTF file.
@@ -141,16 +142,28 @@ struct Skeleton {
   //! Use joint id to fetch the joint.
   Joint &get_joint(int id);
 
-  unsigned int size();
+  std::size_t size();
+
+  //! Fills in the skeleton tree.
+  void fillTree();
+
+  //! Sets the root id
+  void setRoot(std::size_t id) { this->root_id = id; }
 
 private:
   std::vector<Joint> joints;
 
   //! Find the index of the joint with given id.
-  int findJointIdx(int id);
+  std::size_t findJointIdx(std::size_t id);
 
   //! Find the index of the joint with given name.
-  int findJointIdx(std::string name);
+  std::size_t findJointIdx(std::string name);
+
+  //! Root id
+  std::size_t root_id;
+
+  //! Holds this skeleton tree.
+  std::unordered_map<size_t, std::vector<size_t>> tree = {};
 };
 
 #endif /* BONE_H*/

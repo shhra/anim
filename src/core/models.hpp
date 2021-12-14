@@ -68,6 +68,18 @@ private:
   void loadNode(tinygltf::Node &nodes, int nodeIdx, glm::mat4 transform);
   void loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform);
   void loadSkeleton();
+
+  std::vector<int> joint_order = {};
+  std::size_t index(int joint) {
+    for (size_t i = 0; i < joint_order.size(); i++) {
+      if (joint_order[i] == joint) {
+        return i;
+      }
+    }
+    return (std::size_t)-1;
+  };
+
+
 };
 
 #endif

@@ -1,8 +1,12 @@
 #include "bone.hpp"
 #include <glm/fwd.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <stack>
+#include <unordered_map>
+#include <unordered_set>
 
-Joint::Joint(std::string bone_name, unsigned int bone_id,
-             unsigned int parent_id) {
+Joint::Joint(std::string bone_name, std::size_t bone_id,
+             std::size_t parent_id) {
   // TODO: Create a memory copy constructor.
   name = bone_name;
   id = bone_id;
@@ -21,22 +25,21 @@ void Joint::setLocalTransform(Transform &parent) {
   this->transform = Transform(local);
   // TODO: Fix this block later.
 
-  //    this->transform.rotation =
-  //        this->worldTransform.rotation * glm::conjugate(parent.rotation);
-  //    this->transform.scale = this->worldTransform.scale / parent.scale;
-  //    this->transform.position =
-  //        (parent.position - this->worldTransform.position) *
-  //        this->transform.scale;
+  // this->transform.rotation =
+  //     this->worldTransform.rotation * glm::conjugate(parent.rotation);
+  // this->transform.scale = this->worldTransform.scale / parent.scale;
+  // this->transform.position =
+  //     (parent.position - this->worldTransform.position) *
+  //     this->transform.scale;
 }
 
 void Joint::setTransform(const Transform &transform) {
   this->transform = transform;
 }
 
-void Joint::setParent(unsigned int parent_id) { parent = parent_id; }
+void Joint::setParent(std::size_t parent_id) { parent = parent_id; }
 
 // friend std::ostream &operator<<(std::ostream &os, const Joint &j);
-unsigned int Joint::getParent() { return parent; }
 
 void Joint::setBindTransforms() {
   this->bindTransform = this->transform;
@@ -62,8 +65,9 @@ void Skeleton::log() {
       std::cout << "Joint " << j.name << " (id: " << j.id
                 << ") has no parent.\n";
     } else {
+      auto pid = findJointIdx(j.parent);
       std::cout << "Joint " << j.name << "(id: " << j.id << ") has parent "
-                << joints[j.parent].name << ".\n";
+                << joints[pid].name  << "(id: " << joints[pid].id << ").\n";
     }
 
     // // Print it's local transform.
@@ -73,6 +77,10 @@ void Skeleton::log() {
     // // Also print it's world transform.
     // std::cout << "Joint " << j.name << "'s world transform is "
     //           << glm::to_string(j.worldTransform.toMat4()) << ".\n";
+
+    // std::cout << "Rotation: " <<
+    // glm::to_string(j.bindWorldTransform.rotation)
+    //           << std::endl;
   }
 }
 
@@ -108,15 +116,8 @@ void Skeleton::addJoint(std::string name, int parent) {
 }
 
 void Skeleton::setParent(int child, int parent) {
-  // Find the index of parent joint
-  int parent_id = findJointIdx(parent);
-  // select the child joint with the given id and set its parent to parent_id
-  for (auto &j : joints) {
-    if (j.id == child) {
-      j.setParent(parent_id);
-      break;
-    }
-  }
+  Joint &j = get_joint(child);
+  j.setParent(parent);
 }
 
 void Skeleton::setTransforms(int joint_idx, glm::quat joint_orientation,
@@ -141,6 +142,7 @@ void Skeleton::setTransforms(Frame frame) {
   for (int i = 0; i < size(); i++) {
     joints[i].setTransform(frame[i]);
   }
+  return;
 }
 
 void Skeleton::setWorldTransforms(Frame frame) {
@@ -153,7 +155,9 @@ void Skeleton::bindTransforms() {
   for (auto &j : joints) {
     j.setBindTransforms();
   }
+  return;
 }
+
 
 void Skeleton::setLocalTransform() {
   for (int i = 0; i < joints.size(); i++) {
@@ -178,9 +182,7 @@ void Skeleton::setWorldTransforms(std::string joint_name, int jointIdx,
     return;
   }
   auto active_joint = &joints[joint_id];
-  assert(active_joint->id == jointIdx);
-  auto trans = Transform(transform);
-  active_joint->setWorldTransform(trans);
+  active_joint->worldTransform = Transform(transform);
 }
 
 void Skeleton::setWorldTransforms() {
@@ -191,7 +193,6 @@ void Skeleton::setWorldTransforms() {
     } else {
       joint->setWorldTransform(joints[joint->parent].worldTransform);
     }
-    // std::cout << *joint;
   }
 }
 
@@ -205,9 +206,9 @@ Joint &Skeleton::get_joint(int id) {
   return (Joint &)joints[joint_id];
 }
 
-unsigned int Skeleton::size() { return joints.size(); }
+std::size_t Skeleton::size() { return joints.size(); }
 
-int Skeleton::findJointIdx(int id) {
+std::size_t Skeleton::findJointIdx(std::size_t id) {
   // TODO: Change the implementation to recursive defintion.
   for (int i = 0; i < joints.size(); i++) {
     if (joints[i].id == id) {
@@ -218,7 +219,7 @@ int Skeleton::findJointIdx(int id) {
              // happen.
 }
 
-int Skeleton::findJointIdx(std::string name) {
+std::size_t Skeleton::findJointIdx(std::string name) {
   // TODO: Change the implementation to recursive defintion.
   for (int i = 0; i < joints.size(); i++) {
     if (joints[i].name == name) {

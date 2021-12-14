@@ -3,7 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <stack>
 #include <tiny_gltf.h>
+#include <unordered_set>
 
 void Model::loadModel(std::string const &path) {
   tinygltf::TinyGLTF loader;
@@ -25,7 +27,6 @@ void Model::loadModel(std::string const &path) {
   }
 
   skeleton.setLocalTransform();
-  //  skeleton.log();
 }
 
 void Model::loadNode(tinygltf::Node &node, int nodeIdx, glm::mat4 transform) {
@@ -101,7 +102,9 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
               pos[i] = data[i];
             }
-            active_mesh.addVertex(glm::vec3(transform * pos));
+            // pos[3] = 1.0f;
+            active_mesh.addVertex(glm::vec3(pos));
+            // active_mesh.addVertex(glm::vec3(pos));
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -136,10 +139,11 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint16_t *data = (uint16_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = glTFModel.skins[skin_id].joints[data[i]];
+              joint[i] = index(glTFModel.skins[skin_id].joints[data[i]]);
             }
             active_mesh.addJoint(joint);
-            // std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
+            // std::cout << "Joint data: " << glm::to_string(joint) <<
+            // std::endl;
           }
         } else if (accessor.componentType ==
                    TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
@@ -150,10 +154,11 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
                 &buffer.data.at(bufferView.byteOffset + accessor.byteOffset);
             const uint8_t *data = (uint8_t *)(base + byteStride * v_pos);
             for (size_t i = 0; i < accessorType[accessor.type]; i++) {
-              joint[i] = glTFModel.skins[skin_id].joints[data[i]];
+              joint[i] = index(glTFModel.skins[skin_id].joints[data[i]]);
             }
             active_mesh.addJoint(joint);
-            // std::cout << "Joint data: " << glm::to_string(joint) << std::endl;
+            // std::cout << "Joint data: " << glm::to_string(joint) <<
+            // std::endl;
           }
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
@@ -227,14 +232,61 @@ void Model::loadSkeleton() {
     // Print the name of the source_skeleton.
     std::cout << "Skeleton name: " << source_skeleton.name << std::endl;
 
-    for (auto &joint : source_skeleton.joints) {
-      skeleton.addJoint(glTFModel.nodes[joint].name, joint, -1);
-    }
+    std::unordered_map<int, int> child_to_parent = {};
+    // Create a tree that stores the joint hierarchy using std::unordered_map,
+    // parent id and vector of children.
+    std::unordered_map<int, std::vector<int>> joint_tree = {};
 
+    // Iterate through joints and child to add them to the joint_tree.
     for (auto &joint : source_skeleton.joints) {
       for (auto child : glTFModel.nodes[joint].children) {
-        skeleton.setParent(child, joint);
+        joint_tree[joint].push_back(child);
+        child_to_parent[child] = joint;
       }
+    }
+
+    int root_id = 0;
+
+    // Print the child to parent map.
+    for (auto &child_parent : child_to_parent) {
+      if (child_to_parent.find(child_parent.second) == child_to_parent.end()) {
+        root_id = child_parent.second;
+      }
+    }
+    child_to_parent[root_id] = -1;
+    joint_tree[-1] = {root_id};
+
+    // use DFS to order the joints into joint_order. Joint order to store
+    // std::pair<child id, parent id>
+    std::stack<int> stack = {};
+    std::unordered_set<int> visited = {};
+
+    joint_order.push_back(root_id);
+    for (auto &root : joint_tree[-1]) {
+      for (auto &joint : joint_tree[root]) {
+        stack.push(joint);
+      }
+    }
+
+    while (!stack.empty()) {
+      int joint = stack.top();
+      stack.pop();
+      if (visited.find(joint) == visited.end()) {
+        joint_order.push_back(joint);
+        visited.insert(joint);
+        for (auto &child : joint_tree[joint]) {
+          stack.push(child);
+        }
+      }
+    }
+    // The lambda returns the idx in joint_order for given joint id.
+
+    skeleton.addJoint(glTFModel.nodes[joint_order[0]].name, -1);
+    // Create the skeleton using the joint_order
+    for(int i = 1; i < joint_order.size(); i++) {
+      auto parent = index(child_to_parent[joint_order[i]]);
+      auto name = glTFModel.nodes[joint_order[i]].name;
+      skeleton.addJoint(name, parent);
     }
 
     // TODO: Load these inverse bind matrices.

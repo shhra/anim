@@ -43,6 +43,9 @@ BVHImporter::BVHImporter(std::string filename) {
     std::cout << "Parsing motion data" << std::endl;
     // Start parsing the motion data.
     parseMotion(file_stream);
+    bool motion_process = false;
+    if (motion_process) {
+    }
   }
 }
 
@@ -66,11 +69,13 @@ bool BVHImporter::parseNode(std::ifstream &fs, int parent, std::string name) {
   while (!active_stack.empty()) {
     parent = active_stack.top();
     // Parse the joint data over here.
-    std::cout << "Creating a joint with name: " << name << " and parent "
-              << parent << std::endl;
     parseJoint(fs, parent, name);
     Line(fs);
     active_stack.push(animation.skeleton.size() - 1);
+    std::cout << "Creating a joint with name: " << name << " ( "
+              << animation.skeleton.size() - 1 << " ) and parent " << parent
+              << std::endl;
+
     if (skipEnd(line)) {
       for (int i = 0; i < 3; i++) {
         Line(fs);
@@ -100,15 +105,11 @@ bool BVHImporter::parseNode(std::ifstream &fs, int parent, std::string name) {
 bool BVHImporter::parseJoint(std::ifstream &fs, int parent, std::string name) {
   // Read the offset line.
   Line(fs);
-  std::cout << "Offset data: ";
   auto result = split(line);
-
   float x = std::stof(result[1].c_str());
   float y = std::stof(result[2].c_str());
   float z = std::stof(result[3].c_str());
-
   auto position = glm::vec3(x, y, z);
-  std::cout << glm::to_string(position) << std::endl;
   // TODO: Make this function that always returns id.
   animation.skeleton.addJoint(name, parent);
   auto id = animation.skeleton.get_joint(name).id;
@@ -138,8 +139,6 @@ std::string BVHImporter::parseChannel(std::ifstream &fs) {
   for (int i = 2; i <= length - 1; ++i) {
     result += channel_info[i][0];
   }
-
-  std::cout << "Channel info: " << result << std::endl;
   return result;
 }
 
@@ -169,6 +168,9 @@ bool BVHImporter::parseMotion(std::ifstream &fs) {
       bool first = i == 0 ? true : false;
       frames.push_back(createFrame(line, first));
     }
+    // if(i == 60) {
+    //   break;
+    // }
   }
   return true;
 }
@@ -193,9 +195,6 @@ Frame BVHImporter::createFrame(std::string &frame_data, bool first) {
       if (first) {
         position += joint.transform.position;
       }
-
-      // print this position value.
-      std::cout << "Position: " << glm::to_string(position) << std::endl;
 
       scale = 1.0f * scale;
 

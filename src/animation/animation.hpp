@@ -59,9 +59,19 @@ public:
   void setInit() {
     initFrame = frames[0];
     activeFrame = initFrame;
+    // TODO: Make sure this init is called for motion parsing only.
+    skeleton.setRoot(0);
+    skeleton.setTransforms(activeFrame);
+    skeleton.setWorldTransforms();
+    skeleton.bindTransforms();
   }
 
   void setRetargeter() { animRetarget = AnimationRetargetter(&this->skeleton); }
+
+  void setMap(std::vector<std::string> &source,
+              std::vector<std::string> &target) {
+    animRetarget.createMap(source, target);
+  }
 
   void bind() { skeleton.bindTransforms(); }
 
@@ -81,10 +91,10 @@ public:
     if (frames.size() > 0 && index > 0) {
       // Current frame * prev frame. This helps bring to current frame
       // reference.
-      auto resultFrame = frames[index] * activeFrame;
-      activeFrame = resultFrame;
-      /* activeFrame = frames[index]; */ // TODO: Fix is how bvh take the
-                                         // animation.
+      // auto resultFrame = frames[index] * activeFrame;
+      // activeFrame = resultFrame;
+      // TODO: Fix is how bvh take the animation
+      activeFrame = frames[index];
     }
     index++;
   }
