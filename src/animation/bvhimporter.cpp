@@ -110,7 +110,6 @@ bool BVHImporter::parseJoint(std::ifstream &fs, int parent, std::string name) {
   float y = std::stof(result[2].c_str());
   float z = std::stof(result[3].c_str());
   auto position = glm::vec3(x, y, z);
-  // TODO: Make this function that always returns id.
   animation.skeleton.addJoint(name, parent);
   auto id = animation.skeleton.get_joint(name).id;
 

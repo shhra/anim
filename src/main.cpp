@@ -1,10 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 #include "animation/bvhimporter.hpp"
 #include "core/camera.hpp"
@@ -14,13 +12,6 @@
 #include "core/window.hpp"
 
 #include "app/scene.hpp"
-
-// #include "animation/animation.hpp"
-#include "memory"
-
-#include <utility>
-
-#include <iostream>
 
 int main() {
 
@@ -43,12 +34,3 @@ int main() {
 
   return 0;
 }
-
-
-// int main () {
-//   // BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
-//   //             "LocomotionFlat01_000.bvh");
-
-//   // BVHImporter data("/home/shailesh/Projects/Study/Visualization/assets/data.bvh");
-
-// }

@@ -73,7 +73,6 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
 
   for (auto &primitive : mesh.primitives) {
 
-    // TODO Create a mesh over here.
     meshes.push_back(Mesh());
 
     auto &active_mesh = meshes[meshes.size() - 1];

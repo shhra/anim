@@ -9,7 +9,6 @@
 #include <sstream>
 #include <string>
 
-// TODO: Improve setter methods.
 class Shader {
 public:
   unsigned int ID;

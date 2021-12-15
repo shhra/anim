@@ -11,6 +11,7 @@ class Input {
   float last_cursorX, last_cursorY;
   bool first_mouse = true;
   float yoffset = 0.0f;
+  bool fast = false;
 
 public:
   Input(float x, float y) : last_cursorX(x), last_cursorY(y) {}
@@ -67,6 +68,12 @@ public:
   void keyboard_callback(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+      fast = true;
+    } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+      fast = false;
+    }
   }
 
   void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -74,7 +81,10 @@ public:
   }
 
   void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    yoffset = yoffset;
+    float y = yoffset * 0.3;
+    if (fast)
+      y *= 10.0;
+    scene->processInputs(xoffset, y, false, false, true);
   }
 
 private:

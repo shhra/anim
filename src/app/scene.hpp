@@ -144,12 +144,15 @@ public:
     // data.animation.play(shader, nullptr);
   }
 
-  void processInputs(float x, float y, bool pan, bool rotate) {
+  void processInputs(float x, float y, bool pan, bool rotate, bool zoom=false) {
     if (rotate) {
       cam.ProcessMouseMovement(x, y);
     }
     if (pan) {
       cam.ProcessPanMovement(x, y);
+    }
+    if (zoom) {
+      cam.ProcessMouseScroll(y);
     }
   }
 

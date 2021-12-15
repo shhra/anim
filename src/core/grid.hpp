@@ -79,7 +79,6 @@ private:
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 
     // Finally bind the vertex array
-    // TODO: Check the ordering of binding these array buffers
     glBindVertexArray(0);
 
     length = indices.size() * 2;

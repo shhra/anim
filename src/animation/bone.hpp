@@ -21,7 +21,6 @@ struct Joint {
   Joint(std::string bone_name, std::size_t bone_id, std::size_t parent_id);
 
   //! Simply copies the transform.
-  //! TODO: Find implementation. Can be removed.
   void setTransform(const Transform &transform);
 
   //! Calculates the local transform. It requires parents world transform.
@@ -143,9 +142,6 @@ struct Skeleton {
   Joint &get_joint(int id);
 
   std::size_t size();
-
-  //! Fills in the skeleton tree.
-  void fillTree();
 
   //! Sets the root id
   void setRoot(std::size_t id) { this->root_id = id; }

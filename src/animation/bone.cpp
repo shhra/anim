@@ -142,7 +142,6 @@ void Skeleton::setTransforms(Frame frame) {
   for (int i = 0; i < size(); i++) {
     joints[i].setTransform(frame[i]);
   }
-  return;
 }
 
 void Skeleton::setWorldTransforms(Frame frame) {
