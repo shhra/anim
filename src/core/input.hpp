@@ -44,6 +44,7 @@ public:
     if (!left_action && !right_action) {
       last_cursorX = xpos;
       last_cursorY = ypos;
+      scene->setInputs(xpos, ypos, left_action, right_action);
       return;
     }
     if (first_mouse) {
@@ -57,10 +58,10 @@ public:
     last_cursorX = xpos;
     last_cursorY = ypos;
 
-    if (left_action) {
+    if (left_action && fast) {
       scene->processInputs(xoffset, yoffset, false, true);
     }
-    if (right_action) {
+    if (right_action && fast) {
       scene->processInputs(xoffset, yoffset, true, false);
     }
   }
@@ -68,10 +69,9 @@ public:
   void keyboard_callback(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
       glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
       fast = true;
-    } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
       fast = false;
     }
   }

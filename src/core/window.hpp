@@ -2,7 +2,9 @@
 #define WINDOW_H_
 
 #include "input.hpp"
+#include "ui.hpp"
 #include <memory>
+
 
 // Responsible for handling all window related business.
 class Window {
@@ -44,10 +46,12 @@ public:
 
   GLFWwindow *getContext() { return this->window; }
 
-  void render(Scene &scene) {
+  void render(Scene &scene, Ui &ui) {
     glClearColor(0.69f, 0.839f, 0.961f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    scene.render(screen_width, screen_height);
+    scene.render(screen_width, screen_height, ui);
+
+    ui.draw();
     glfwSwapBuffers(window);
   }
 
@@ -57,6 +61,7 @@ public:
   }
 
   void handleInput() { input->keyboard_callback(window); }
+  void terminate() { glfwTerminate(); }
 
 private:
   GLFWwindow *window;

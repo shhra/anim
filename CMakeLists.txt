@@ -13,6 +13,24 @@ add_subdirectory(library/tinygltf)
 
 include_directories(include)
 
+# SET(IMGUI_HEADERS
+#   library/imgui/imgui.h
+#   library/imgui/imconfig.h
+#   library/imgui/imgui_impl_glfw.h
+#   library/imgui/imgui_impl_opengl3.h
+#   library/imgui/imgui_impl_opengl3_loaders.h
+#   library/imgui/imgui_internal.h
+#   library/imgui/imstb_rectpack.h
+#   library/imgui/imstb_textedit.h
+#   library/imgui/imstb_truetype.h)
+
+include_directories(library/imgui)
+
+file(GLOB IMGUI_SOURCES
+  library/imgui/*.cpp)
+
+source_group("Header Files" FILES ${IMGUI_HEADERS})
+
 add_executable(visualization
   src/main.cpp
   src/glad.c
@@ -26,16 +44,17 @@ add_executable(visualization
   src/core/transform.cpp
   src/core/window.hpp
   src/core/input.hpp
-
+  src/core/ui.hpp
   src/app/scene.hpp
-  
   src/animation/bone.hpp
   src/animation/bone.cpp
   src/animation/bone_mesh.hpp
   src/animation/bvhimporter.hpp
   src/animation/bvhimporter.cpp
   src/animation/retargeter.hpp
-  src/animation/retargeter.cpp)
+  src/animation/retargeter.cpp
+  ${IMGUI_SOURCES})
 
 target_link_libraries(visualization glfw ${GLFW_LIBRARIES}
   tinygltf ${TINYGLTF_LIBRARIES})
+

@@ -27,7 +27,8 @@ void AnimationRetargetter::retarget(Skeleton *target) {
     auto src_world_rotation = src_a * src_bone->transform.rotation;
 
     // Handle artifacts
-    if (glm::dot(src_world_rotation, src_bone->bindWorldTransform.rotation) < 0) {
+    if (glm::dot(src_world_rotation, src_bone->bindWorldTransform.rotation) <
+        0) {
       src_world_rotation = src_world_rotation * (-tar_src_diff);
     } else {
       src_world_rotation = src_world_rotation * tar_src_diff;
@@ -70,13 +71,14 @@ void AnimationRetargetter::retarget(Skeleton *target) {
   auto a = handle_zeros(tar_bone.worldTransform.position);
   auto b = handle_zeros(src_bone.worldTransform.position);
   auto scale = div(a, b);
-//  scale = glm::vec3(1.0f);
+  //  scale = glm::vec3(1.0f);
 
-//   tar_bone.worldTransform.position = (src_bone.worldTransform.position -
-//                                       src_bone.bindWorldTransform.position) *
-//                                          scale +
-//                                      tar_bone.bindWorldTransform.position;
-//    tar_bone.transform = tar_bone.worldTransform;
+  //   tar_bone.worldTransform.position = (src_bone.worldTransform.position -
+  //                                       src_bone.bindWorldTransform.position)
+  //                                       *
+  //                                          scale +
+  //                                      tar_bone.bindWorldTransform.position;
+  //    tar_bone.transform = tar_bone.worldTransform;
   target->setWorldTransforms();
   // target->setLocalTransform();
 }

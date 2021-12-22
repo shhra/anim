@@ -87,14 +87,14 @@ public:
     if (target != nullptr)
       animRetarget.retarget(target);
 
-    skeleton.drawJoints(shader, bone);
+//    skeleton.drawJoints(shader, bone);
     if (frames.size() > 0 && index > 0) {
       // Current frame * prev frame. This helps bring to current frame
       // reference.
-      // auto resultFrame = frames[index] * activeFrame;
-      // activeFrame = resultFrame;
+      auto resultFrame = frames[index] * activeFrame;
+      activeFrame = resultFrame;
       // TODO: Fix is how bvh take the animation
-      activeFrame = frames[index];
+      // activeFrame = frames[index];
     }
     index++;
   }
