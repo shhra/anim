@@ -12,6 +12,8 @@ class BVHImporter {
 public:
   BVHImporter(std::string filename);
 
+  // Fix this animation style too!
+
   //! Data will be stored in frames.
   Animation animation;
 

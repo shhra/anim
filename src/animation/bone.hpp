@@ -147,6 +147,12 @@ struct Skeleton {
   void setRoot(std::size_t id) { this->root_id = id; }
 
 private:
+  // TODO: Joints can be decouples from skeletons too.
+  // Instead of using joints in this way, we can refer the joint by joint id.
+  // These joints can be stored independently from skeleton.
+  // As a result all the "transform" operation now changes into a joint
+  // operation.
+  // Decoupling the joints will make it easy to apply joint operations.
   std::vector<Joint> joints;
 
   //! Find the index of the joint with given id.

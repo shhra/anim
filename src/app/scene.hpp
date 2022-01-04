@@ -7,7 +7,6 @@
 #include "../animation/bvhimporter.hpp"
 #include "../core/camera.hpp"
 #include "../core/grid.hpp"
-#include "../core/input.hpp"
 #include "../core/shader.hpp"
 #include "../core/ui.hpp"
 #include "glm/glm.hpp"
@@ -164,6 +163,8 @@ public:
   }
 
   glm::vec3 raycast() {
+    // TODO: Make sure ray is shot only when the left mouse button is clicked.
+
     // Print the mouse position in normalized device coordinates
     float x = (this->x / (float)1280) * 2.0f - 1.0f;
     float y = (this->y / (float)720) * 2.0f - 1.0f;

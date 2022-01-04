@@ -11,6 +11,9 @@
 
 class Animation {
 public:
+  // TODO: Instead of creating an skeleton object inside animation class, I
+  // think it will be better to pass in the skeleton id. This way animation will
+  // act on data and it will decouple from skeleton.
   Skeleton skeleton;
 
   Animation() {
@@ -87,7 +90,7 @@ public:
     if (target != nullptr)
       animRetarget.retarget(target);
 
-//    skeleton.drawJoints(shader, bone);
+    //    skeleton.drawJoints(shader, bone);
     if (frames.size() > 0 && index > 0) {
       // Current frame * prev frame. This helps bring to current frame
       // reference.
@@ -100,13 +103,19 @@ public:
   }
 
 private:
+  // Remove "frames from animation too." And create allow animation to process
+  // frame data instead.
+  // Therefore these frames are stored outside of animation.
   std::vector<Frame> frames;
   // The inital frame for the animation.
   Frame initFrame;
-  Frame activeFrame;
-  BoneMesh bone;
+  Frame activeFrame; // It's okay to keep it inside.
+  BoneMesh bone;     // Can be passed a bonemesh pointer.
   // High Risk: Data race. Better method needed.
   int index;
+
+  // Make retargetter take in the animation instead of it being
+  // inside animation it being inside animation
   AnimationRetargetter animRetarget;
 };
 
