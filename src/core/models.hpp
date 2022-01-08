@@ -8,6 +8,7 @@
 
 #include "../animation/bone.hpp"
 #include "mesh.hpp"
+#include "scene.hpp"
 #include "shader.hpp"
 
 #include <fstream>
@@ -17,6 +18,8 @@
 #include <string>
 #include <tiny_gltf.h>
 #include <vector>
+
+namespace core {
 
 static std::map<int, GLenum> drawMode =
     std::map<int, GLenum>{{TINYGLTF_MODE_POINTS, GL_POINTS},
@@ -38,7 +41,7 @@ static std::map<int, int> accessorType = std::map<int, int>{
 class Model {
 public:
   // Set the model data.
-  vector<Mesh> meshes;
+  std::vector<Mesh> meshes;
   Skeleton skeleton;
   bool applyGamma;
   Model(std::string const &path, bool gamma = false) : applyGamma(gamma) {
@@ -78,8 +81,6 @@ private:
     }
     return (std::size_t)-1;
   };
-
-
 };
-
+} // namespace core
 #endif

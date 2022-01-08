@@ -15,6 +15,7 @@
 #include "core/shader.hpp"
 #include "core/ui.hpp"
 #include "core/window.hpp"
+#include "core/mesh.hpp"
 
 int main() {
 
@@ -23,15 +24,26 @@ int main() {
   window.initWindow();
   window.createContext();
 
-
   Shader shader("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
                 "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
   shader.use();
 
-  std::shared_ptr<core::Camera> cam = std::make_shared<core::Camera>(10);
+  std::shared_ptr<core::Camera> cam = std::make_shared<core::Camera>(20);
   std::shared_ptr<core::Scene> scene = std::make_shared<core::Scene>();
 
-  core::SceneManager::addgrid(scene, Grid(10));
+  core::Model model(
+      "/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
+
+  model.load();
+  model.skeleton.bindTransforms(); // << this will be removed.
+
+  core::SceneManager::addgrid(scene, Grid(20, 1));
+
+  for (auto &mesh: model.meshes) {
+    std::unique_ptr<core::Mesh> m = std::make_unique<core::Mesh>(mesh);
+    core::SceneManager::addMesh(scene, m);
+  }
+
   std::shared_ptr<core::CameraManager> cam_manager =
       std::make_shared<core::CameraManager>(cam);
   core::Renderer renderer(cam, scene);

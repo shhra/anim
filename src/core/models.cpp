@@ -7,6 +7,8 @@
 #include <tiny_gltf.h>
 #include <unordered_set>
 
+namespace core {
+
 void Model::loadModel(std::string const &path) {
   tinygltf::TinyGLTF loader;
   bool result = loader.LoadASCIIFromFile(&glTFModel, &err, &warn, path);
@@ -327,3 +329,4 @@ void Model::loadSkeleton() {
     }
   }
 }
+} // namespace core

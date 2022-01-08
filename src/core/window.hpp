@@ -50,7 +50,7 @@ public:
   void render(Renderer &renderer, Ui &ui, Shader &shader) {
     glClearColor(0.69f, 0.839f, 0.961f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    renderer.render(screen_width, screen_height, shader);
+    renderer.render(this->screen_width, this->screen_height, shader);
     ui.draw();
     glfwSwapBuffers(window);
   }
