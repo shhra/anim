@@ -12,10 +12,9 @@
 #include <vector>
 using namespace std;
 
-#define MAX_BONE_INFLUENCE 4
-
 class Mesh {
 public:
+  int id;
   // mesh Data
   vector<glm::vec3> positions;
   vector<glm::vec3> normals;
@@ -25,10 +24,15 @@ public:
   // Create a list of skinning weights.
   vector<glm::vec4> joint_weights;
 
-  unsigned int VAO;
+  // Bounding box min.
+  glm::vec3 bb_min = {};
+
+  // Bounding box pax.
+  glm::vec3 bb_max = {};
+
+  unsigned int vao;
 
   Mesh() {}
-
   void addVertex(glm::vec3 vertex) { positions.push_back(vertex); }
   void addNormal(glm::vec3 normal) { normals.push_back(normal); }
   void addIndex(unsigned int index) { indices.push_back(index); }
@@ -36,14 +40,10 @@ public:
     joint_indices.push_back(joint_index);
   }
   void addWeight(glm::vec4 weight) { joint_weights.push_back(weight); }
-
-  // render the mesh
   void Draw(Shader &shader) {
     glm::mat4 model = glm::mat4(1.0f);
-    // Set the scale of the model to 3.0f.
-    // model = glm::scale(model, glm::vec3(150.0f));
     shader.setMat4("model", model);
-    glBindVertexArray(VAO);
+    glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0); // u
   }
@@ -54,13 +54,11 @@ private:
   // render data
   unsigned int VBO, EBO;
 
-  // initializes all the buffer objects/arrays
   void setupMesh() {
-
     // create buffers/arrays
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1, &vao);
     glGenBuffers(1, &VBO);
-    glBindVertexArray(VAO);
+    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER,
                  positions.size() * sizeof(glm::vec3) +

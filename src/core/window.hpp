@@ -1,10 +1,13 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
+#include "camera.hpp"
 #include "input.hpp"
+#include "renderer.hpp"
 #include "ui.hpp"
 #include <memory>
 
+namespace core {
 
 // Responsible for handling all window related business.
 class Window {
@@ -13,7 +16,6 @@ public:
       : screen_width(width), screen_height(height) {
     deltaTime = 0.0f;
     lastFrame = 0.0f;
-    input = std::make_unique<Input>(width / 2, height / 2);
   }
 
   void initWindow() {
@@ -31,7 +33,6 @@ public:
   }
   void createContext() {
     glfwMakeContextCurrent(window);
-    registerCallbacks();
     // glfwSetFramebufferSizeCallback(window, inputs.mo);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -42,36 +43,31 @@ public:
     glEnable(GL_DEPTH_TEST);
   }
 
-  void postContext(Scene *scene) { input.get()->setScene(scene); }
+  // void postContext(Scene *scene) { input.get()->setScene(scene); }
 
   GLFWwindow *getContext() { return this->window; }
 
-  void render(Scene &scene, Ui &ui) {
+  void render(Renderer &renderer, Ui &ui, Shader &shader) {
     glClearColor(0.69f, 0.839f, 0.961f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    scene.render(screen_width, screen_height, ui);
-
+    renderer.render(screen_width, screen_height, shader);
     ui.draw();
     glfwSwapBuffers(window);
   }
 
-  void pollevents(Scene &scene) {
+  void pollevents() {
     // Call the other functions here.
     glfwPollEvents();
   }
 
-  void handleInput() { input->keyboard_callback(window); }
+  void handleInput(Input* input) {
+    input->keyboard_callback(window);
+  }
+
   void terminate() { glfwTerminate(); }
 
-private:
-  GLFWwindow *window;
-  std::unique_ptr<Input> input;
-  unsigned int screen_width, screen_height;
-  float deltaTime;
-  float lastFrame;
-
-  void registerCallbacks() {
-    glfwSetWindowUserPointer(window, input.get());
+  void registerCallbacks(Input* input) {
+    glfwSetWindowUserPointer(window, input);
 #define registerCallback(functionName)                                         \
   [](GLFWwindow *window, auto... args) {                                       \
     auto pointer = static_cast<Input *>(glfwGetWindowUserPointer(window));     \
@@ -84,6 +80,15 @@ private:
     glfwSetScrollCallback(window, registerCallback(scroll_callback));
     // #undef registerCallback
   }
+
+private:
+  GLFWwindow *window;
+  unsigned int screen_width, screen_height;
+  float deltaTime;
+  float lastFrame;
+
 };
+
+} // namespace core
 
 #endif // WINDOW_H_

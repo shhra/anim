@@ -18,13 +18,13 @@
 #include <glm/gtx/string_cast.hpp>
 #include <string>
 #include <thread>
+#include "../core/models.hpp"
 
 class Scene {
 public:
-  Scene() { cam = Camera(10); }
+  Scene() {}
 
   Scene(const char *vert_shader, const char *frag_shader) {
-    cam = Camera(5);
     shader = Shader(vert_shader, frag_shader);
     shader.use();
     grid = Grid(10, 1);
@@ -83,8 +83,8 @@ public:
     // this->data.animation.setRetargeter();
     // this->data.animation.skeleton.log();
 
-    // model.load();
-    // model.skeleton.bindTransforms();
+    model.load();
+    model.skeleton.bindTransforms();
     // model.skeleton.log();
 
     std::vector<std::string> source = {
@@ -133,12 +133,14 @@ public:
 
     // TODO: Select the objects here.
 
+
+
     anim.skeleton.drawJoints(shader, bone);
     // data.animation.skeleton.drawJoints(shader, bone);
     // model.skeleton.drawJoints(shader, bone);
-    shader.setBool("is_skin", true);
+    // shader.setBool("is_skin", true);
     // model.skeleton.bindUniforms(shader);
-    // model.Draw(shader);
+    model.Draw(shader);
 
     // auto joint = model.skeleton.get_joint(0);
     // std::string name = joint.name + " rotation: (" +
@@ -191,13 +193,12 @@ public:
   }
 
 private:
-  Camera cam;
   Shader shader;
   Grid grid;
   Animation anim;
   BoneMesh bone = BoneMesh();
-  // Model model =
-  // Model("/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
+  Model model =
+  Model("/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
   // Model("/home/shailesh/Projects/Study/Visualization/assets/anim.gltf");
   // Model("/home/shailesh/Projects/Study/Visualization/assets/RiggedFigure.gltf");
   //
@@ -207,4 +208,5 @@ private:
   float x, y;
   bool left, right;
 };
+
 #endif // SCENE_H_

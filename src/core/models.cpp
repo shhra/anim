@@ -108,6 +108,12 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
         } else {
           std::cout << "NOT IMPLMENTED FOR TYPE!" << std::endl;
         }
+
+        // Use the accessor min and max values to create the bounding box.
+        glm::vec3 bmin = glm::vec3(accessor.minValues[0], accessor.minValues[1],
+                                   accessor.minValues[2]);
+        glm::vec3 bmax = glm::vec3(accessor.maxValues[0], accessor.maxValues[1],
+                                   accessor.maxValues[2]);
       }
 
       // Load the normal data into the active mesh.
@@ -282,7 +288,7 @@ void Model::loadSkeleton() {
 
     skeleton.addJoint(glTFModel.nodes[joint_order[0]].name, -1);
     // Create the skeleton using the joint_order
-    for(int i = 1; i < joint_order.size(); i++) {
+    for (int i = 1; i < joint_order.size(); i++) {
       auto parent = index(child_to_parent[joint_order[i]]);
       auto name = glTFModel.nodes[joint_order[i]].name;
       skeleton.addJoint(name, parent);

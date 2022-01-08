@@ -16,6 +16,9 @@ public:
     glBindVertexArray(0);
   };
 
+  glm::vec3 bmin() { return bbmin; }
+  glm::vec3 bmax() { return bbmax; }
+
 private:
   float vert = 0.2f;
   float hori = 0.1f;
@@ -44,6 +47,9 @@ private:
   };
 
   float normals[18] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  glm::vec3 bbmin = glm::vec3(-hori, -hori, 0.f);
+  glm::vec3 bbmax = glm::vec3(hori, hori, 1.f);
 
   void loadVertices() {
     calculateNormals();
@@ -102,13 +108,12 @@ private:
       }
     }
 
-    for(int i = 0; i < 18; i +=3) {
+    for (int i = 0; i < 18; i += 3) {
       auto data = glm::vec3(normals[i], normals[i + 1], normals[i + 2]);
       auto result = glm::normalize(data);
       normals[i] = result.x;
       normals[i + 1] = result.y;
       normals[i + 2] = result.z;
-
     }
   }
 };

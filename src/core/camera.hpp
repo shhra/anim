@@ -5,7 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <memory>
+#include <random>
 #include <vector>
+
+namespace core {
 
 // Defines several possible options for camera movement. Used as abstraction to
 // stay away from window-system specific input methods
@@ -36,7 +40,10 @@ public:
   float MouseSensitivity;
   float Zoom;
 
-  Camera() {}
+  // Camera update values.
+  int new_x, new_y;
+  bool is_left_pressed, is_right_pressed;
+
   // constructor with vectors
   Camera(float radius, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
          float yaw = YAW, float pitch = PITCH)
@@ -106,5 +113,33 @@ private:
     Up = glm::normalize(glm::cross(Right, Front));
   }
 };
+
+struct CameraManager {
+  CameraManager(std::shared_ptr<Camera> &cam) : cam(cam) {}
+
+  void setInputs(int x, int y, bool left, bool right) {
+    this->cam->new_x = x;
+    this->cam->new_y = y;
+    this->cam->is_left_pressed = left;
+    this->cam->is_right_pressed = left;
+  };
+
+  void processInputs(float x, float y, bool pan, bool rotate,
+                     bool zoom = false) {
+    if (rotate) {
+      this->cam->ProcessMouseMovement(x, y);
+    }
+    if (pan) {
+      this->cam->ProcessPanMovement(x, y);
+    }
+    if (zoom) {
+      this->cam->ProcessMouseScroll(y);
+    }
+  }
+
+private:
+  std::shared_ptr<Camera> cam;
+};
+} // namespace core
 
 #endif // CAMERA_H_
