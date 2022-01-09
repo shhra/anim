@@ -1,14 +1,18 @@
 #ifndef ANIMATION_H_
 #define ANIMATION_H_
 
+#include "../core/scene.hpp"
 #include "../core/transform.hpp"
 #include "bone.hpp"
 #include "bone_mesh.hpp"
+#include "bvhimporter.hpp"
 #include "frame.hpp"
 #include "retargeter.hpp"
 #include "vector"
+#include <memory>
 #include <unistd.h>
 
+namespace core {
 class Animation {
 public:
   // TODO: Instead of creating an skeleton object inside animation class, I
@@ -19,7 +23,7 @@ public:
   Animation() {
     frames = {};
     this->skeleton = Skeleton();
-    bone = BoneMesh();
+    bone = anim::BoneMesh();
     index = 0;
   }
 
@@ -109,8 +113,8 @@ private:
   std::vector<Frame> frames;
   // The inital frame for the animation.
   Frame initFrame;
-  Frame activeFrame; // It's okay to keep it inside.
-  BoneMesh bone;     // Can be passed a bonemesh pointer.
+  Frame activeFrame;   // It's okay to keep it inside.
+  anim::BoneMesh bone; // Can be passed a bonemesh pointer.
   // High Risk: Data race. Better method needed.
   int index;
 
@@ -118,5 +122,25 @@ private:
   // inside animation it being inside animation
   AnimationRetargetter animRetarget;
 };
+} // namespace core
+
+namespace anim {
+
+struct Frame {
+  int start;
+  int end;
+  Frame(int start, int end) : start(start), end(end) {}
+};
+
+struct Animation {
+  int start; // Transforms.
+  int end;   // Transforms.
+  float frame_time;
+  std::vector<Frame> frames;
+  Animation() : start(0), end(0), frames({}), frame_time(0.0f) {}
+};
+
+
+} // namespace anim
 
 #endif // ANIMATION_H_

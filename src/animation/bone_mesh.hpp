@@ -4,6 +4,8 @@
 #include "../core/shader.hpp"
 #include <glad/glad.h> // holds all OpenGL type declarations
 
+namespace anim {
+
 class BoneMesh {
 public:
   BoneMesh() { loadVertices(); }
@@ -117,5 +119,5 @@ private:
     }
   }
 };
-
+} // namespace anim
 #endif // BONE_MESH_H_

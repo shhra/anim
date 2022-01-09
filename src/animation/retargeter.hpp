@@ -4,6 +4,8 @@
 #include "./bone.hpp"
 #include <string>
 
+
+namespace core {
 // Animation retargetter is a class that can be used to retarget animation.
 class AnimationRetargetter {
 public:
@@ -24,5 +26,6 @@ private:
   using RetargetMap = std::vector<std::pair<std::string, std::string>>;
   RetargetMap data_pair;
 };
+}
 
 #endif // VISUALIZATION_RETARGETER_HPP

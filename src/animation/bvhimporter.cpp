@@ -7,6 +7,8 @@
 #include <stack>
 #include <string>
 
+namespace anim {
+
 #define Line(filestream)                                                       \
   std::string line;                                                            \
   std::getline(filestream, line)
@@ -71,10 +73,9 @@ bool BVHImporter::parseNode(std::ifstream &fs, int parent, std::string name) {
     // Parse the joint data over here.
     parseJoint(fs, parent, name);
     Line(fs);
-    active_stack.push(animation.skeleton.size() - 1);
+    active_stack.push(skeleton.size() - 1);
     std::cout << "Creating a joint with name: " << name << " ( "
-              << animation.skeleton.size() - 1 << " ) and parent " << parent
-              << std::endl;
+              << skeleton.size() - 1 << " ) and parent " << parent << std::endl;
 
     if (skipEnd(line)) {
       for (int i = 0; i < 3; i++) {
@@ -110,18 +111,18 @@ bool BVHImporter::parseJoint(std::ifstream &fs, int parent, std::string name) {
   float y = std::stof(result[2].c_str());
   float z = std::stof(result[3].c_str());
   auto position = glm::vec3(x, y, z);
-  animation.skeleton.addJoint(name, parent);
-  auto id = animation.skeleton.get_joint(name).id;
+  skeleton.addJoint(name, parent);
+  auto id = skeleton.get_joint(name).id;
 
   // Fill in the joint offset.
-  animation.skeleton.setTransforms(id, glm::quat(1.0, 0.0, 0.0, 0.0), position);
+  skeleton.setTransforms(id, glm::quat(1.0, 0.0, 0.0, 0.0), position);
 
   // Read the channel data.
   auto channel = parseChannel(fs);
 
   // TODO: Handle error here for empty string.
   // TODO: Be sure that data is written only once.
-  joint_channels[animation.skeleton.get_joint(name).id] = channel;
+  joint_channels[skeleton.get_joint(name).id] = channel;
 
   return true;
 }
@@ -158,6 +159,7 @@ bool BVHImporter::parseMotion(std::ifstream &fs) {
   {
     Line(fs);
     frame_time = std::stof(split(line)[2]);
+    animation.frame_time = frame_time;
   }
 
   for (int i = 0; !fs.eof(); i++) {
@@ -165,26 +167,28 @@ bool BVHImporter::parseMotion(std::ifstream &fs) {
     // Parse the motion data here.
     if (line.length() > 0) {
       bool first = i == 0 ? true : false;
-      frames.push_back(createFrame(line, first));
+      createFrame(line, first);
     }
     // if(i == 60) {
     //   break;
     // }
   }
+  animation.end = transforms.size();
   return true;
 }
 
-Frame BVHImporter::createFrame(std::string &frame_data, bool first) {
+void BVHImporter::createFrame(std::string &frame_data, bool first) {
   auto data = split(frame_data);
-  Frame frame = Frame();
   int idx = 0;
 
-  for (int i = 0; i < animation.skeleton.size(); i++) {
-    auto &joint = animation.skeleton.get_joint(i);
+  int frame_start = this->transforms.size();
+
+  for (int i = 0; i < skeleton.size(); i++) {
+    auto &joint = skeleton.get_joint(i);
 
     glm::vec3 position = glm::vec3(0.0f);
     glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-    Transform transform;
+    core::Transform transform;
     // Get the joint position
     if (joint_channels[i] == "XYZZYX") {
       glm::vec3 scale = glm::vec3(1.0f);
@@ -206,7 +210,7 @@ Frame BVHImporter::createFrame(std::string &frame_data, bool first) {
       orientation *= glm::angleAxis(z, glm::vec3(0.0f, 0.0f, 1.0f));
       orientation *= glm::angleAxis(y, glm::vec3(0.0f, 1.0f, 0.0f));
       orientation *= glm::angleAxis(x, glm::vec3(1.0f, 0.0f, 0.0f));
-      transform = Transform(position, orientation, scale);
+      transform = core::Transform(position, orientation, scale);
     } else if (joint_channels[i] == "ZYX") {
       float z = glm::radians(std::stof(data[idx++]));
       float y = glm::radians(std::stof(data[idx++]));
@@ -216,11 +220,15 @@ Frame BVHImporter::createFrame(std::string &frame_data, bool first) {
       orientation *= glm::angleAxis(y, glm::vec3(0.0f, 1.0f, 0.0f));
       orientation *= glm::angleAxis(x, glm::vec3(1.0f, 0.0f, 0.0f));
       transform =
-          Transform(joint.transform.position, orientation, glm::vec3(1.0f));
+          core::Transform(joint.transform.position, orientation, glm::vec3(1.0f));
     }
 
-    frame.addFrameData(transform);
+    this->transforms.push_back(transform);
   }
-  animation.addFrame(frame);
-  return frame;
+
+  int frame_end = this->transforms.size();
+  animation.frames.emplace_back(frame_start, frame_end);
+
 }
+
+} // namespace anim

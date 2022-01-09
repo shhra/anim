@@ -13,6 +13,8 @@
 #include <cstddef>
 #include <unordered_map>
 
+namespace core {
+
 // A joint presents a bone in the skeleton. Each joint can be considered as
 // a node in the skeleton. Joint can also help in skinning of the mesh.
 // Joints are required to drive the skeletal animation of any given character
@@ -85,7 +87,7 @@ struct Skeleton {
   //! These requires a bone besh to draw the skeleton. The bone is a small mesh
   //! that can represent a joint. It draws a bone from parent position to it's
   //! current position
-  void drawJoints(Shader &shader, BoneMesh &joint_model);
+  void drawJoints(Shader &shader, anim::BoneMesh &joint_model);
 
   //! This one doesn't require the child id. This can be used when one is
   //! creating the Skeleton from something like BVH.
@@ -146,6 +148,8 @@ struct Skeleton {
   //! Sets the root id
   void setRoot(std::size_t id) { this->root_id = id; }
 
+  const std::vector<Joint> &getJoint() const { return joints; }
+
 private:
   // TODO: Joints can be decouples from skeletons too.
   // Instead of using joints in this way, we can refer the joint by joint id.
@@ -167,5 +171,5 @@ private:
   //! Holds this skeleton tree.
   std::unordered_map<size_t, std::vector<size_t>> tree = {};
 };
-
+} // namespace core
 #endif /* BONE_H*/

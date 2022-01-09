@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+namespace core {
+
 Joint::Joint(std::string bone_name, std::size_t bone_id,
              std::size_t parent_id) {
   // TODO: Create a memory copy constructor.
@@ -67,7 +69,7 @@ void Skeleton::log() {
     } else {
       auto pid = findJointIdx(j.parent);
       std::cout << "Joint " << j.name << "(id: " << j.id << ") has parent "
-                << joints[pid].name  << "(id: " << joints[pid].id << ").\n";
+                << joints[pid].name << "(id: " << joints[pid].id << ").\n";
     }
 
     // // Print it's local transform.
@@ -84,7 +86,7 @@ void Skeleton::log() {
   }
 }
 
-void Skeleton::drawJoints(Shader &shader, BoneMesh &joint_model) {
+void Skeleton::drawJoints(Shader &shader, anim::BoneMesh &joint_model) {
   for (int i = 1; i < joints.size(); i++) {
     auto parent = joints[joints[i].parent];
     auto towards = joints[i].worldTransform.position;
@@ -157,7 +159,6 @@ void Skeleton::bindTransforms() {
   return;
 }
 
-
 void Skeleton::setLocalTransform() {
   for (int i = 0; i < joints.size(); i++) {
     auto joint = &joints[i];
@@ -228,3 +229,4 @@ std::size_t Skeleton::findJointIdx(std::string name) {
   return -1; // This means the id doesn't exist which is never going to
              // happen.
 }
+} // namespace core

@@ -5,9 +5,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/string_cast.hpp"
-#include <vector>
 #include <iostream>
+#include <vector>
 
+namespace core {
 class Frame {
 public:
   Frame() { transforms = {}; }
@@ -47,5 +48,10 @@ public:
 private:
   std::vector<Transform> transforms;
 };
+} // namespace core
+
+namespace anim {
+
+} // namespace anim
 
 #endif // FRAME_H_

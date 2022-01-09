@@ -31,63 +31,9 @@ public:
 
   // Bounding box pax.
   glm::vec3 bb_max = {};
-
   unsigned int vao;
 
   Mesh() {}
-
-  // Mesh(const Mesh &other) {
-  //   this->positions = other.positions;
-  //   this->normals = other.normals;
-  //   this->indices = other.indices;
-  //   this->joint_indices = other.joint_indices;
-  //   this->joint_weights = other.joint_weights;
-  //   this->bb_min = other.bb_min;
-  //   this->bb_max = other.bb_max;
-  //   this->id = other.id;
-  //   this->vao = other.vao;
-  // }
-
-  // Mesh(Mesh &&other) {
-  //   this->positions = std::move(positions);
-  //   this->normals = std::move(other.normals);
-  //   this->indices = std::move(other.indices);
-  //   this->joint_indices = std::move(other.joint_indices);
-  //   this->joint_weights = std::move(other.joint_weights);
-  //   this->bb_min = std::move(other.bb_min);
-  //   this->bb_max = std::move(other.bb_max);
-  //   this->id = std::move(other.id);
-  //   this->vao = std::move(other.vao);
-  // }
-
-  // Mesh operator=(const Mesh &other) {
-  //   Mesh m;
-  //   m.positions = other.positions;
-  //   m.normals = other.normals;
-  //   m.indices = other.indices;
-  //   m.joint_indices = other.joint_indices;
-  //   m.joint_weights = other.joint_weights;
-  //   m.bb_min = other.bb_min;
-  //   m.bb_max = other.bb_max;
-  //   m.id = other.id;
-  //   m.vao = other.vao;
-  //   return m;
-  // }
-
-  // Mesh& operator=(const Mesh &&other) {
-  //   Mesh m;
-  //   this->positions = std::move(other.positions);
-  //   this->normals = std::move(other.normals);
-  //   this->indices = std::move(other.indices);
-  //   this->joint_indices = std::move(other.joint_indices);
-  //   this->joint_weights = std::move(other.joint_weights);
-  //   this->bb_min = std::move(other.bb_min);
-  //   this->bb_max = std::move(other.bb_max);
-  //   this->id = other.id;
-  //   this->vao = other.vao;
-  //   return *this;
-  // }
-
   void addVertex(glm::vec3 vertex) { positions.push_back(vertex); }
   void addNormal(glm::vec3 normal) { normals.push_back(normal); }
   void addIndex(unsigned int index) { indices.push_back(index); }

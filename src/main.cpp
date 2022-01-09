@@ -1,3 +1,5 @@
+#include "animation/bvhimporter.hpp"
+#include "animation/joint.hpp"
 #include "core/input.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -6,7 +8,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "animation/bvhimporter.hpp"
 #include "core/camera.hpp"
 #include "core/grid.hpp"
 #include "core/models.hpp"
@@ -16,6 +17,7 @@
 #include "core/ui.hpp"
 #include "core/window.hpp"
 #include "core/mesh.hpp"
+#include "animation/loader.hpp"
 
 int main() {
 
@@ -37,12 +39,20 @@ int main() {
   model.load();
   model.skeleton.bindTransforms(); // << this will be removed.
 
+
+  anim::BVHImporter bvh =
+      anim::BVHImporter("/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
+                  "LocomotionFlat02_000.bvh");
+
   core::SceneManager::addgrid(scene, Grid(20, 1));
 
-  for (auto &mesh: model.meshes) {
-    std::unique_ptr<core::Mesh> m = std::make_unique<core::Mesh>(mesh);
-    core::SceneManager::addMesh(scene, m);
-  }
+  anim::AnimDatabase db = anim::AnimDatabase();
+
+  auto animation = std::move(anim::AnimationLoader::loadMotionData(scene, bvh, db));
+  // for (auto &mesh: model.meshes) {
+  //   std::unique_ptr<core::Mesh> m = std::make_unique<core::Mesh>(mesh);
+  //   core::SceneManager::addMesh(scene, m);
+  // }
 
   std::shared_ptr<core::CameraManager> cam_manager =
       std::make_shared<core::CameraManager>(cam);
@@ -53,13 +63,19 @@ int main() {
 
   Ui ui(window.getContext());
   // window.postContext(&scene);
+  int i = 0;
   while (!glfwWindowShouldClose(window.getContext())) {
     // Load UI stuffs
+    if (i >= animation->frames.size()) {
+      i = 0;
+    }
     ui.loadFrame();
     ui.setup();
+    anim::AnimationLoader::setFrame(scene, animation, db, i);
     window.handleInput(&input);
     window.render(renderer, ui, shader);
     window.pollevents();
+    i++;
   }
 
   ui.terminate();

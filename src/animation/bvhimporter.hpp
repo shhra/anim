@@ -3,8 +3,11 @@
 
 #include "./animation.hpp"
 #include "./frame.hpp"
+#include "bone.hpp"
 #include <fstream>
 #include <unordered_map>
+
+namespace anim {
 
 //! Handles importing of motion capture data stored in BVH format.
 //! It will extract the bones as well as frames for the given animation.
@@ -12,10 +15,13 @@ class BVHImporter {
 public:
   BVHImporter(std::string filename);
 
-  // Fix this animation style too!
+  core::Skeleton skeleton = core::Skeleton();
+
+  // Stores all the transforms for the animation.
+  std::vector<core::Transform> transforms;
 
   //! Data will be stored in frames.
-  Animation animation;
+  Animation animation = Animation();
 
   //! Time for each frame.
   float frame_time;
@@ -34,7 +40,7 @@ private:
   //! Number of frames in the animation.
   int frame_len;
 
-  Frame createFrame(std::string &line, bool first);
+  void createFrame(std::string &line, bool first);
 
 
   //! Data gets stored in frames.
@@ -48,5 +54,7 @@ private:
 
   std::vector<std::string> split(std::string &input);
 };
+
+}
 
 #endif // BVHIMPORTER_H_

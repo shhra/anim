@@ -2,8 +2,10 @@
 #define TRANSFORM_H_
 
 #include "glm/glm.hpp"
-#include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "glm/gtx/quaternion.hpp"
+
+namespace core {
 
 struct Transform {
   //! Defines the rotation of the object
@@ -23,7 +25,7 @@ struct Transform {
       : position(T), rotation(R), scale(S) {}
 
   //! Extracts the translation, rotation and scale from the matrix.
-  Transform (glm::mat4 &matrix);
+  Transform(glm::mat4 &matrix);
 
   //! Given the forward vector and towards direction, calculate the transform
   //! and return the rotated transform. This transformation mutates the state.
@@ -57,11 +59,11 @@ struct Transform {
 
   //! Get the required transformation matrix from translation, rotation and
   //! scale.
-  glm::mat4 toMat4();
+  glm::mat4 toMat4() const;
 
   //! This multiplies with the another transform b and return a new transform.
   Transform operator*(const Transform parent);
-
 };
+} // namespace core
 
 #endif // TRANSFORM_H_
