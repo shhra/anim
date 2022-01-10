@@ -2,8 +2,8 @@
 #define INPUT_H_
 
 #include "camera.hpp"
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <memory>
 
@@ -16,8 +16,8 @@ class Input {
   bool fast = false;
 
 public:
-  Input(std::shared_ptr<CameraManager> &cam_manager, float x, float y)
-      : cam_manager(cam_manager), last_cursorX(x), last_cursorY(y) {}
+  Input(std::unique_ptr<Camera> &cam, float x, float y)
+      : cam(cam), last_cursorX(x), last_cursorY(y) {}
 
   std::pair<float, float> getCoords() {
     return std::pair<float, float>(last_cursorX, last_cursorY);
@@ -45,7 +45,7 @@ public:
     if (!left_action && !right_action) {
       last_cursorX = xpos;
       last_cursorY = ypos;
-      cam_manager->setInputs(xpos, ypos, left_action, right_action);
+      core::CameraManager::setInputs(cam, xpos, ypos, left_action, right_action);
       return;
     }
     if (first_mouse) {
@@ -60,10 +60,10 @@ public:
     last_cursorY = ypos;
 
     if (left_action && fast) {
-      cam_manager->processInputs(xoffset, yoffset, false, true);
+      core::CameraManager::processInputs(cam, xoffset, yoffset, false, true);
     }
     if (right_action && fast) {
-      cam_manager->processInputs(xoffset, yoffset, true, false);
+      core::CameraManager::processInputs(cam, xoffset, yoffset, true, false);
     }
   }
 
@@ -85,11 +85,11 @@ public:
     float y = yoffset * 0.3;
     if (fast)
       y *= 10.0;
-    cam_manager->processInputs(xoffset, y, false, false, true);
+    core::CameraManager::processInputs(cam, xoffset, y, false, false, true);
   }
 
 private:
-  std::shared_ptr<CameraManager> cam_manager;
+  std::unique_ptr<Camera> &cam;
 };
 } // namespace core
 #endif // INPUT_H_

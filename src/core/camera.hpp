@@ -115,30 +115,26 @@ private:
 };
 
 struct CameraManager {
-  CameraManager(std::shared_ptr<Camera> &cam) : cam(cam) {}
-
-  void setInputs(int x, int y, bool left, bool right) {
-    this->cam->new_x = x;
-    this->cam->new_y = y;
-    this->cam->is_left_pressed = left;
-    this->cam->is_right_pressed = left;
+  static void setInputs(std::unique_ptr<Camera> &cam, int x, int y, bool left,
+                        bool right) {
+    cam->new_x = x;
+    cam->new_y = y;
+    cam->is_left_pressed = left;
+    cam->is_right_pressed = left;
   };
 
-  void processInputs(float x, float y, bool pan, bool rotate,
-                     bool zoom = false) {
+  static void processInputs(std::unique_ptr<Camera> &cam, float x, float y,
+                               bool pan, bool rotate, bool zoom = false) {
     if (rotate) {
-      this->cam->ProcessMouseMovement(x, y);
+      cam->ProcessMouseMovement(x, y);
     }
     if (pan) {
-      this->cam->ProcessPanMovement(x, y);
+      cam->ProcessPanMovement(x, y);
     }
     if (zoom) {
-      this->cam->ProcessMouseScroll(y);
+      cam->ProcessMouseScroll(y);
     }
   }
-
-private:
-  std::shared_ptr<Camera> cam;
 };
 } // namespace core
 

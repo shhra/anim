@@ -55,26 +55,23 @@ int main() {
                 "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
   shader.use();
 
-  std::shared_ptr<core::Camera> cam = std::make_shared<core::Camera>(20);
+  std::unique_ptr<core::Camera> cam = std::make_unique<core::Camera>(20);
 
   core::Model model(
       "/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
 
-  core::SceneManager scene_manager = core::SceneManager();
-
   model.load();
   model.skeleton.bindTransforms(); // << this will be removed.
 
-  std::unique_ptr<core::Scene> &scene = scene_manager.getScene();
+  std::unique_ptr<core::Scene> scene = std::make_unique<core::Scene>();
   // Fill the model skeleton.
-  anim::SkeletonTransformation::fillSkeletons(scene,
-                                              model.skeleton);
+  anim::SkeletonTransformation::fillSkeletons(scene, model.skeleton);
 
   anim::BVHImporter bvh = anim::BVHImporter(
       "/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
       "LocomotionFlat02_000.bvh");
 
-  scene_manager.addgrid(Grid(20, 1));
+  core::SceneManager::addgrid(scene, Grid(20, 1));
 
   anim::AnimDatabase db = anim::AnimDatabase();
 
@@ -83,14 +80,12 @@ int main() {
 
   for (auto &mesh : model.meshes) {
     std::unique_ptr<core::Mesh> m = std::make_unique<core::Mesh>(mesh);
-    scene_manager.addMesh(m);
+    core::SceneManager::addMesh(scene, m);
   }
 
-  std::shared_ptr<core::CameraManager> cam_manager =
-      std::make_shared<core::CameraManager>(cam);
   core::Renderer renderer(cam, scene);
 
-  core::Input input(cam_manager, 640.f, 360.0f);
+  core::Input input(cam, 640.f, 360.0f);
   window.registerCallbacks(&input);
 
   anim::AnimationLoader::initialize(scene, animation, db);

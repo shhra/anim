@@ -53,20 +53,16 @@ struct Scene {
 };
 
 struct SceneManager {
-  SceneManager() { scene = std::make_unique<Scene>(); }
 
-  std::unique_ptr<Scene> &getScene() { return scene; }
+  static void addgrid(std::unique_ptr<Scene> &scene, Grid grid) {
+    scene->grid = grid;
+  }
 
-  void addgrid(Grid grid) { scene->grid = grid; }
-
-  void addMesh(std::unique_ptr<Mesh> &mesh) {
+  static void addMesh(std::unique_ptr<Scene> &scene, std::unique_ptr<Mesh> &mesh) {
     int id = mesh->id;
     scene->meshes.push_back(std::move(mesh));
     scene->mesh_transforms.push_back(glm::mat4(1.0f));
   }
-
-private:
-  std::unique_ptr<Scene> scene;
 };
 } // namespace core
 #endif // SCENE_H_
