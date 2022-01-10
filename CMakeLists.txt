@@ -50,6 +50,7 @@ add_executable(visualization
   src/core/scene.hpp
 
   src/app/scene.hpp
+  src/app/demoscene.hpp
 
   src/animation/bone.hpp
   src/animation/bone.cpp
@@ -57,8 +58,8 @@ add_executable(visualization
   src/animation/bvhimporter.hpp
   src/animation/bvhimporter.cpp
   src/animation/loader.hpp
-  # src/animation/retargeter.hpp
-  # src/animation/retargeter.cpp
+  src/animation/retargeter.hpp
+  src/animation/retargeter.cpp
   ${IMGUI_SOURCES})
 
 target_link_libraries(visualization glfw ${GLFW_LIBRARIES}

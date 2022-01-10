@@ -47,11 +47,12 @@ public:
 
   GLFWwindow *getContext() { return this->window; }
 
-  void render(Renderer &renderer, Ui &ui, Shader &shader) {
+  void clear() {
     glClearColor(0.69f, 0.839f, 0.961f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    renderer.render(this->screen_width, this->screen_height, shader);
-    ui.draw();
+  }
+
+  void swap() {
     glfwSwapBuffers(window);
   }
 
@@ -60,13 +61,11 @@ public:
     glfwPollEvents();
   }
 
-  void handleInput(Input* input) {
-    input->keyboard_callback(window);
-  }
+  void handleInput(Input *input) { input->keyboard_callback(window); }
 
   void terminate() { glfwTerminate(); }
 
-  void registerCallbacks(Input* input) {
+  void registerCallbacks(Input *input) {
     glfwSetWindowUserPointer(window, input);
 #define registerCallback(functionName)                                         \
   [](GLFWwindow *window, auto... args) {                                       \
@@ -86,7 +85,6 @@ private:
   unsigned int screen_width, screen_height;
   float deltaTime;
   float lastFrame;
-
 };
 
 } // namespace core

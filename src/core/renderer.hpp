@@ -16,10 +16,11 @@ namespace core {
 //! A renderer is responsible for rendering a virtual scene with a camera.
 //! This renderer is extremely simple and uses only single camera system.
 struct Renderer {
+
   Renderer(std::unique_ptr<Camera> &cam, std::unique_ptr<Scene> &scene)
       : cam(cam), scene(scene) {}
 
-  void render(float screen_height, float screen_width, Shader &shader) {
+  void render(Shader &shader) {
     glm::mat4 projection =
         glm::perspective(glm::radians(cam->Zoom), 4.f / 3.f, 0.1f, 1000.f);
 
@@ -56,7 +57,8 @@ struct Renderer {
       int access_idx = skeleton->transform_start + idx;
 
       auto world_transform = scene->active_world_transform[access_idx].toMat4();
-      auto bind_world_transform = scene->bind_world_transform[access_idx].toMat4();
+      auto bind_world_transform =
+          scene->bind_world_transform[access_idx].toMat4();
       std::string name = "inversebindPose[" + std::to_string(idx) + "]";
       shader.setMat4(name, glm::inverse(bind_world_transform));
       // Print the inverse bind pose using glm::to_string.

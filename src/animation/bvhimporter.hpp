@@ -13,6 +13,8 @@ namespace anim {
 //! It will extract the bones as well as frames for the given animation.
 class BVHImporter {
 public:
+  BVHImporter() {}
+
   BVHImporter(std::string filename);
 
   core::Skeleton skeleton = core::Skeleton();
