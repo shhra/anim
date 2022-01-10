@@ -18,11 +18,6 @@ uniform bool is_skin;
 
 void main()
 {
-    // TODO: Determine the joint offsets.
-    // ivec4 joints = joints + ivec4(2);
-    // ivec4 joints = ivec4(0, 1, 2, 3);
-    // vec4 weights = vec4(0.0);
-    // bool is_skin = false;
     mat4 skin = (worldPose[joints.x] * inversebindPose[joints.x]) * weights.x;
     skin += (worldPose[joints.y] * inversebindPose[joints.y]) * weights.y;
     skin += (worldPose[joints.z] * inversebindPose[joints.z]) * weights.z;
@@ -34,8 +29,8 @@ void main()
     } else {
         FragPos = vec3(model * vec4(aPos, 1.0));
         Normal = aNormal;
+//        Normal = transpose(inverse(mat3(model))) * aNormal;
     }
-    Normal = aNormal;
-    // Normal = transpose(inverse(mat3(model))) * aNormal;
+//    Normal = transpose(inverse(mat3(model))) * aNormal;
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }

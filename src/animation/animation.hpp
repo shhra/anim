@@ -7,7 +7,6 @@
 #include "bone_mesh.hpp"
 #include "bvhimporter.hpp"
 #include "frame.hpp"
-#include "retargeter.hpp"
 #include "vector"
 #include <memory>
 #include <unistd.h>
@@ -73,12 +72,12 @@ public:
     skeleton.bindTransforms();
   }
 
-  void setRetargeter() { animRetarget = AnimationRetargetter(&this->skeleton); }
+  // void setRetargeter() { animRetarget = AnimationRetargetter(&this->skeleton); }
 
-  void setMap(std::vector<std::string> &source,
-              std::vector<std::string> &target) {
-    animRetarget.createMap(source, target);
-  }
+  // void setMap(std::vector<std::string> &source,
+  //             std::vector<std::string> &target) {
+  //   animRetarget.createMap(source, target);
+  // }
 
   void bind() { skeleton.bindTransforms(); }
 
@@ -91,8 +90,8 @@ public:
     skeleton.setWorldTransforms();
 
     // Use this skeleton to retarget another skeleton.
-    if (target != nullptr)
-      animRetarget.retarget(target);
+    // if (target != nullptr)
+    //   animRetarget.retarget(target);
 
     //    skeleton.drawJoints(shader, bone);
     if (frames.size() > 0 && index > 0) {
@@ -120,7 +119,7 @@ private:
 
   // Make retargetter take in the animation instead of it being
   // inside animation it being inside animation
-  AnimationRetargetter animRetarget;
+  // AnimationRetargetter animRetarget;
 };
 } // namespace core
 

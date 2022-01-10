@@ -1,8 +1,8 @@
 #ifndef BVHIMPORTER_H_
 #define BVHIMPORTER_H_
 
-#include "./animation.hpp"
-#include "./frame.hpp"
+#include "animation.hpp"
+#include "frame.hpp"
 #include "bone.hpp"
 #include <fstream>
 #include <unordered_map>

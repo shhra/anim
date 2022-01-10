@@ -1,7 +1,11 @@
 #include "retargeter.hpp"
 #include <glm/gtx/string_cast.hpp>
 
-void AnimationRetargetter::retarget(Skeleton *target) {
+namespace core {
+
+void retarget(Skeleton *target) {
+  Skeleton *source;
+  std::vector<std::pair<std::string, std::string>> data_pair;
   auto rotate = [&](Joint *src_bone, Joint *tar_bone) {
     // Source's parent rotation.
     auto src_a =
@@ -83,9 +87,10 @@ void AnimationRetargetter::retarget(Skeleton *target) {
   // target->setLocalTransform();
 }
 
-void AnimationRetargetter::createMap(std::vector<std::string> &source,
-                                     std::vector<std::string> &target) {
+void createMap(std::vector<std::string> &source,
+               std::vector<std::string> &target) {
 
+  std::vector<std::pair<std::string, std::string>> data_pair;
   // TODO: Insert assertion.
   if (source.size() != target.size()) {
     std::cerr << "Make sure the source and target are same." << std::endl;
@@ -96,3 +101,5 @@ void AnimationRetargetter::createMap(std::vector<std::string> &source,
         std::pair<std::string, std::string>(source[i], target[i]));
   }
 }
+
+} // namespace core

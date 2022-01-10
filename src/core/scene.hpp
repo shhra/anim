@@ -13,6 +13,7 @@ struct Joint {
   int id;
   int parent;
   int skeleton;
+  std::string name;
 };
 
 struct Skeleton {
@@ -49,8 +50,6 @@ struct Scene {
 
   //! bone model transforms
   std::vector<glm::mat4> model_transforms = {};
-
-
 };
 
 struct SceneManager {
@@ -64,8 +63,6 @@ struct SceneManager {
     scene->meshes.push_back(std::move(mesh));
     scene->mesh_transforms.push_back(glm::mat4(1.0f));
   }
-
-
 };
 } // namespace core
 #endif // SCENE_H_

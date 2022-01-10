@@ -7,6 +7,7 @@
 #include "shader.hpp"
 #include "ui.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <memory>
 
@@ -26,10 +27,11 @@ struct Renderer {
 
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
+    shader.setBool("is_skin", false);
 
-    anim::SkeletonTransformation::updateTransforms(scene);
     scene->grid.Draw(shader);
 
+    updateInverseBindTransforms(shader, 0);
     for (auto &mesh : scene->meshes) {
       int mesh_id = mesh->id;
       glm::mat4 model_transform =
@@ -41,12 +43,28 @@ struct Renderer {
       glBindVertexArray(0);
     }
 
-    int i = 0;
-    for (auto &world: scene->model_transforms){
+    shader.setBool("is_skin", false);
+    for (auto &world : scene->model_transforms) {
       shader.setMat4("model", world);
       scene->bone_model.Draw(shader);
-      i++;
     }
+  }
+
+  void updateInverseBindTransforms(Shader &shader, int skeleton_id) {
+    auto skeleton = scene->skeletons[skeleton_id].get();
+    for (int idx = 0; idx < skeleton->size; idx++) {
+      int access_idx = skeleton->transform_start + idx;
+
+      auto world_transform = scene->active_world_transform[access_idx].toMat4();
+      auto bind_world_transform = scene->bind_world_transform[access_idx].toMat4();
+      std::string name = "inversebindPose[" + std::to_string(idx) + "]";
+      shader.setMat4(name, glm::inverse(bind_world_transform));
+      // Print the inverse bind pose using glm::to_string.
+
+      std::string world_name = "worldPose[" + std::to_string(idx) + "]";
+      shader.setMat4(world_name, world_transform);
+    }
+    shader.setBool("is_skin", true);
   }
 
 private:

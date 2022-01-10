@@ -14,6 +14,8 @@ Joint::Joint(std::string bone_name, std::size_t bone_id,
   id = bone_id;
   parent = parent_id;
   transform = Transform();
+  worldTransform = Transform();
+  inverseBindPose = glm::mat4(1.0f);
 }
 
 void Joint::setWorldTransform(const Transform &parent) {
