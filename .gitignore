@@ -14,3 +14,10 @@ debug/
 cmake-build-debug/
 *.blend*
 *.gl*
+.cache/
+cmake-build-debug-coverage/
+compile_commands.json
+*.db
+*.fbx
+*.bvh
+*.zip
