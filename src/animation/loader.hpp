@@ -16,7 +16,7 @@ struct AnimDatabase {
 struct AnimationLoader {
 
   static std::unique_ptr<Animation>
-  loadMotionData(std::shared_ptr<core::Scene> &scene, BVHImporter &data,
+  loadMotionData(std::unique_ptr<core::Scene> &scene, BVHImporter &data,
                  AnimDatabase &db) {
     int start = scene->active_transform.size();
     int end = start + data.animation.end;
@@ -38,7 +38,7 @@ struct AnimationLoader {
     return animation;
   }
 
-  static void initialize(std::shared_ptr<core::Scene> &scene,
+  static void initialize(std::unique_ptr<core::Scene> &scene,
                          std::unique_ptr<Animation> &anim, AnimDatabase &db) {
 
     auto skeleton = scene->skeletons[*db[anim.get()]].get();
@@ -81,7 +81,7 @@ struct AnimationLoader {
     }
   }
 
-  static void setFrame(std::shared_ptr<core::Scene> &scene,
+  static void setFrame(std::unique_ptr<core::Scene> &scene,
                        std::unique_ptr<Animation> &anim, AnimDatabase &db,
                        int frame_id) {
 

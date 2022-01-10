@@ -10,7 +10,7 @@
 namespace anim {
 
 struct SkeletonTransformation {
-  static void fillSkeletons(std::shared_ptr<core::Scene> &scene,
+  static void fillSkeletons(std::unique_ptr<core::Scene> &scene,
                             core::Skeleton skeleton) {
 
     int skeleton_id = scene->skeletons.size();
@@ -49,7 +49,7 @@ struct SkeletonTransformation {
     }
   }
 
-  static void updateTransforms(std::shared_ptr<core::Scene> &scene, int id) {
+  static void updateTransforms(std::unique_ptr<core::Scene> &scene, int id) {
     auto skeleton = scene->skeletons[id].get();
     int start = skeleton->transform_start;
     for (int idx = 1; idx < skeleton->size; idx++) {

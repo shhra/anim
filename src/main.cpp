@@ -56,22 +56,25 @@ int main() {
   shader.use();
 
   std::shared_ptr<core::Camera> cam = std::make_shared<core::Camera>(20);
-  std::shared_ptr<core::Scene> scene = std::make_shared<core::Scene>();
 
   core::Model model(
       "/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
 
+  core::SceneManager scene_manager = core::SceneManager();
+
   model.load();
   model.skeleton.bindTransforms(); // << this will be removed.
 
+  std::unique_ptr<core::Scene> &scene = scene_manager.getScene();
   // Fill the model skeleton.
-  anim::SkeletonTransformation::fillSkeletons(scene, model.skeleton);
+  anim::SkeletonTransformation::fillSkeletons(scene,
+                                              model.skeleton);
 
   anim::BVHImporter bvh = anim::BVHImporter(
       "/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
       "LocomotionFlat02_000.bvh");
 
-  core::SceneManager::addgrid(scene, Grid(20, 1));
+  scene_manager.addgrid(Grid(20, 1));
 
   anim::AnimDatabase db = anim::AnimDatabase();
 
@@ -80,7 +83,7 @@ int main() {
 
   for (auto &mesh : model.meshes) {
     std::unique_ptr<core::Mesh> m = std::make_unique<core::Mesh>(mesh);
-    core::SceneManager::addMesh(scene, m);
+    scene_manager.addMesh(m);
   }
 
   std::shared_ptr<core::CameraManager> cam_manager =

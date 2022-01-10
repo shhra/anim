@@ -16,7 +16,7 @@ namespace core {
 //! A renderer is responsible for rendering a virtual scene with a camera.
 //! This renderer is extremely simple and uses only single camera system.
 struct Renderer {
-  Renderer(std::shared_ptr<Camera> cam, std::shared_ptr<Scene> scene)
+  Renderer(std::shared_ptr<Camera> cam, std::unique_ptr<Scene> &scene)
       : cam(cam), scene(scene) {}
 
   void render(float screen_height, float screen_width, Shader &shader) {
@@ -69,7 +69,7 @@ struct Renderer {
 
 private:
   std::shared_ptr<Camera> cam;
-  std::shared_ptr<Scene> scene;
+  std::unique_ptr<Scene> &scene;
 };
 } // namespace core
 
