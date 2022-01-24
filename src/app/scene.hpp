@@ -25,14 +25,15 @@
 
 namespace app {
 
-struct SceneCreator {
-  SceneCreator() = default;
-  virtual ~SceneCreator() = default;
+struct Scene {
+  Scene() = default;
+  virtual ~Scene() = default;
 
   virtual void initialize() = 0;
-  virtual void handleUpdates(int i) = 0;
+  virtual void handleUpdates(int* i) = 0;
   virtual std::unique_ptr<core::Camera> &getCam() = 0;
   virtual void render(Shader& shader) = 0;
+  virtual void addUI() = 0;
 
 };
 

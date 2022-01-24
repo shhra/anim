@@ -32,7 +32,8 @@ struct Scene {
 
   std::vector<std::unique_ptr<Mesh>> meshes;
   std::vector<glm::mat4> mesh_transforms = {};
-  std::vector<std::unique_ptr<anim::Skeleton>> skeletons = {};
+
+  std::vector<anim::Skeleton> skeletons = {};
 
   //! Active pose.
   std::vector<Transform> active_transform = {};

@@ -1,4 +1,5 @@
 #include "app/demoscene.hpp"
+#include "app/ikscene.hpp"
 #include "app/scene.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -21,31 +22,33 @@ int main() {
                 "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
   shader.use();
 
-  std::unique_ptr<app::SceneCreator> app = std::make_unique<app::DemoScene>();
+  // std::unique_ptr<app::Scene> app = std::make_unique<app::DemoScene>();
+  std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
 
 
   core::Input input(app->getCam(), 640.f, 360.0f);
   window.registerCallbacks(&input);
 
 
-  Ui ui(window.getContext());
+  Ui::Init(window.getContext());
   // window.postContext(&scene);
   int i = 0;
   while (!glfwWindowShouldClose(window.getContext())) {
     // Load UI stuffs
-    ui.loadFrame();
-    ui.setup();
+    Ui::loadFrame();
+    Ui::setup();
     window.handleInput(&input);
-    app->handleUpdates(i);
+    app->handleUpdates(&i);
     window.clear();
     app->render(shader);
-    ui.draw();
+    app->addUI();
+    Ui::draw();
     window.swap();
     window.pollevents();
     i++;
   }
 
-  ui.terminate();
+  Ui::terminate();
   window.terminate();
 
   return 0;

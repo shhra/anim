@@ -1,13 +1,14 @@
 #ifndef DEMOSCENE_H_
 #define DEMOSCENE_H_
 
+#include "../core/ui.hpp"
 #include "scene.hpp"
 #include <memory>
 
 // TODO: Make this demoscene read a config file!
 namespace app {
 
-struct DemoScene : public SceneCreator {
+struct DemoScene : public Scene {
 public:
   DemoScene()
       : cam(std::move(std::make_unique<core::Camera>(20))),
@@ -20,11 +21,11 @@ public:
     fillScene();
   }
 
-  virtual void handleUpdates(int i) {
-    if (i >= motion_animation->frames.size()) {
-      i = 0;
+  virtual void handleUpdates(int *i) {
+    if (*i >= motion_animation->frames.size()) {
+      *i = 0;
     }
-    anim::AnimationLoader::setFrame(scene, motion_animation, anim_db, i);
+    anim::AnimationLoader::setFrame(scene, motion_animation, anim_db, *i);
     anim::AnimationRetargetter::retarget(scene, scene->skeletons[1],
                                          scene->skeletons[0], map_db);
     anim::SkeletonTransformation::updateTransforms(scene, 0);
@@ -34,6 +35,36 @@ public:
   std::unique_ptr<core::Camera> &getCam() { return this->cam; }
 
   virtual void render(Shader &shader) { renderer.render(shader); }
+
+  virtual void addUI() {
+    for (auto &skeleton : scene->skeletons) {
+      Ui::addSkeletonTree(skeleton, scene->joints, &selected_transform);
+    }
+    if (selected_transform > -1) {
+      // Create a popup window for the transform values.
+      if(is_first_copy == true) {
+        copy = scene->active_transform[selected_transform];
+        is_first_copy = false;
+      }
+      ImGui::OpenPopup("Transform");
+    }
+    if (ImGui::BeginPopup("Transform")) {
+      auto transform = &scene->active_transform[selected_transform];
+      // Save transform values..
+      ImGui::SliderFloat3("Position", &transform->position[0], -10.0f, 10.0f);
+      ImGui::SliderFloat4("Rotation", &transform->rotation[0], -1.0f, 1.0f);
+      // Create a reset button that sets transform to the copied values.
+      if (ImGui::Button("Reset")) {
+        *transform = copy;
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Close")) {
+        ImGui::CloseCurrentPopup();
+        selected_transform = -1;
+      }
+      ImGui::EndPopup();
+    }
+  }
 
 private:
   anim::AnimationRetargetter::MapDatabase map_db;
@@ -45,6 +76,11 @@ private:
   core::Model model = core::Model(
       "/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
   core::Renderer renderer = core::Renderer(cam, scene);
+
+  // UI data goes in here.
+  int selected_transform = -1;
+  core::Transform copy;
+  bool is_first_copy = true;
 
   void loadData() {
     std::vector<std::string> source = {
@@ -90,6 +126,7 @@ private:
         anim::AnimationLoader::loadMotionData(scene, motion_data, anim_db));
     anim::AnimationLoader::initialize(scene, motion_animation, anim_db);
   }
+
 };
 } // namespace app
 

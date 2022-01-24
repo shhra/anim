@@ -41,11 +41,11 @@ struct AnimationLoader {
   static void initialize(std::unique_ptr<core::Scene> &scene,
                          std::unique_ptr<Animation> &anim, AnimDatabase &db) {
 
-    auto skeleton = scene->skeletons[*db[anim.get()]].get();
+    auto skeleton = scene->skeletons[*db[anim.get()]];
     auto frame = anim->frames[0];
 
     int frame_idx = anim->start + frame.start;
-    int transform_idx = skeleton->transform_start;
+    int transform_idx = skeleton.transform_start;
 
     core::Transform &root_transform = scene->active_transform[transform_idx];
     root_transform = scene->active_transform[frame_idx];
@@ -53,9 +53,9 @@ struct AnimationLoader {
     root_world = scene->active_transform[transform_idx];
 
     frame_idx++;
-    for (int idx = 1; idx < skeleton->size; idx++) {
+    for (int idx = 1; idx < skeleton.size; idx++) {
 
-      int joint = skeleton->joint_start + idx;
+      int joint = skeleton.joint_start + idx;
       auto ac_joint = scene->joints[joint];
 
       core::Transform &joint_transform =
@@ -85,11 +85,11 @@ struct AnimationLoader {
                        std::unique_ptr<Animation> &anim, AnimDatabase &db,
                        int frame_id) {
 
-    auto skeleton = scene->skeletons[*db[anim.get()]].get();
+    auto skeleton = scene->skeletons[*db[anim.get()]];
     auto frame = anim->frames[frame_id];
 
     int frame_idx = anim->start + frame.start;
-    int transform_idx = skeleton->transform_start;
+    int transform_idx = skeleton.transform_start;
 
     core::Transform &root_transform = scene->active_transform[transform_idx];
     root_transform = scene->active_transform[frame_idx];
@@ -97,9 +97,9 @@ struct AnimationLoader {
     root_world = scene->active_transform[transform_idx];
 
     frame_idx++;
-    for (int idx = 1; idx < skeleton->size; idx++) {
+    for (int idx = 1; idx < skeleton.size; idx++) {
 
-      int joint = skeleton->joint_start + idx;
+      int joint = skeleton.joint_start + idx;
       auto ac_joint = scene->joints[joint];
 
       core::Transform &joint_transform =

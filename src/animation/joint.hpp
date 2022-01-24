@@ -16,13 +16,13 @@ struct SkeletonTransformation {
     int skeleton_id = scene->skeletons.size();
 
     // Create a new skeleton
-    auto anim_skeleton = std::make_unique<anim::Skeleton>();
-    anim_skeleton->id = skeleton_id;
-    anim_skeleton->transform_start = scene->active_transform.size();
-    anim_skeleton->joint_start = scene->joints.size();
-    anim_skeleton->size = skeleton.size();
+    auto anim_skeleton = anim::Skeleton();
+    anim_skeleton.id = skeleton_id;
+    anim_skeleton.transform_start = scene->active_transform.size();
+    anim_skeleton.joint_start = scene->joints.size();
+    anim_skeleton.size = skeleton.size();
 
-    scene->skeletons.push_back(std::move(anim_skeleton));
+    scene->skeletons.push_back(anim_skeleton);
 
     for (auto &joint : skeleton.getJoint()) {
       scene->active_transform.push_back(joint.transform);
@@ -32,7 +32,7 @@ struct SkeletonTransformation {
       scene->bind_world_transform.push_back(joint.bindWorldTransform);
 
       assert(scene->active_transform.size() - 1 ==
-             scene->skeletons[skeleton_id]->transform_start + joint.id);
+             scene->skeletons[skeleton_id].transform_start + joint.id);
       auto anim_joint = anim::Joint();
       anim_joint.id = joint.id;
       anim_joint.parent = joint.parent;
@@ -50,10 +50,10 @@ struct SkeletonTransformation {
   }
 
   static void updateTransforms(std::unique_ptr<core::Scene> &scene, int id) {
-    auto skeleton = scene->skeletons[id].get();
-    int start = skeleton->transform_start;
-    for (int idx = 1; idx < skeleton->size; idx++) {
-      int joint = idx + skeleton->joint_start;
+    auto skeleton = scene->skeletons[id];
+    int start = skeleton.transform_start;
+    for (int idx = 1; idx < skeleton.size; idx++) {
+      int joint = idx + skeleton.joint_start;
       auto active_joint = scene->joints[joint];
 
       auto joint_world_transform =
@@ -81,7 +81,7 @@ struct SkeletonTransformation {
 
       auto world = translate * rotate * scale;
       auto &joint_model =
-          scene->model_transforms[skeleton->joint_start + active_joint.id];
+          scene->model_transforms[skeleton.joint_start + active_joint.id];
       joint_model = world;
     }
   }

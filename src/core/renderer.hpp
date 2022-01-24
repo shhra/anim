@@ -20,7 +20,7 @@ struct Renderer {
   Renderer(std::unique_ptr<Camera> &cam, std::unique_ptr<Scene> &scene)
       : cam(cam), scene(scene) {}
 
-  void render(Shader &shader) {
+  void render(Shader &shader, bool draw_bone = false) {
     glm::mat4 projection =
         glm::perspective(glm::radians(cam->Zoom), 4.f / 3.f, 0.1f, 1000.f);
 
@@ -32,7 +32,7 @@ struct Renderer {
 
     scene->grid.Draw(shader);
 
-    updateInverseBindTransforms(shader, 0);
+    updateInverseBindTransforms(shader, 0); // THIS IS A HACK FOR SKINNING!
     for (auto &mesh : scene->meshes) {
       int mesh_id = mesh->id;
       glm::mat4 model_transform =
@@ -45,16 +45,18 @@ struct Renderer {
     }
 
     shader.setBool("is_skin", false);
-    for (auto &world : scene->model_transforms) {
-      shader.setMat4("model", world);
-      scene->bone_model.Draw(shader);
+    if (draw_bone) {
+      for (auto &world : scene->model_transforms) {
+        shader.setMat4("model", world);
+        scene->bone_model.Draw(shader);
+      }
     }
   }
 
   void updateInverseBindTransforms(Shader &shader, int skeleton_id) {
-    auto skeleton = scene->skeletons[skeleton_id].get();
-    for (int idx = 0; idx < skeleton->size; idx++) {
-      int access_idx = skeleton->transform_start + idx;
+    auto skeleton = scene->skeletons[skeleton_id];
+    for (int idx = 0; idx < skeleton.size; idx++) {
+      int access_idx = skeleton.transform_start + idx;
 
       auto world_transform = scene->active_world_transform[access_idx].toMat4();
       auto bind_world_transform =

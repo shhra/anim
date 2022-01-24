@@ -51,6 +51,7 @@ add_executable(visualization
 
   src/app/scene.hpp
   src/app/demoscene.hpp
+  src/app/ikscene.hpp
 
   src/animation/bone.hpp
   src/animation/bone.cpp

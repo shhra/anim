@@ -12,8 +12,8 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-uniform mat4 inversebindPose[200];
-uniform mat4 worldPose[200];
+uniform mat4 inversebindPose[100];
+uniform mat4 worldPose[100];
 uniform bool is_skin;
 
 void main()

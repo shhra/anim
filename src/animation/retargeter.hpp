@@ -32,8 +32,7 @@ struct AnimationRetargetter {
   }
 
   static void retarget(std::unique_ptr<core::Scene> &scene,
-                       std::unique_ptr<Skeleton> &src_skeleton,
-                       std::unique_ptr<Skeleton> &tar_skeleton,
+                       Skeleton &src_skeleton, Skeleton &tar_skeleton,
                        MapDatabase &data) {
 
     for (auto &src_tar_pair : data) {
@@ -44,36 +43,36 @@ struct AnimationRetargetter {
     }
 
     const core::Transform joint_local_transform =
-        scene->active_transform[tar_skeleton->transform_start];
+        scene->active_transform[tar_skeleton.transform_start];
 
     core::Transform &joint_world_transform =
-        scene->active_world_transform[tar_skeleton->transform_start];
+        scene->active_world_transform[tar_skeleton.transform_start];
     joint_world_transform = joint_local_transform;
 
-    for (int idx = 1; idx < tar_skeleton->size; idx++) {
-      int joint_id = tar_skeleton->joint_start + idx;
+    for (int idx = 1; idx < tar_skeleton.size; idx++) {
+      int joint_id = tar_skeleton.joint_start + idx;
 
       Joint &active = scene->joints[joint_id];
 
       core::Transform &joint_local_transform =
-          scene->active_transform[tar_skeleton->transform_start + active.id];
+          scene->active_transform[tar_skeleton.transform_start + active.id];
 
       core::Transform &joint_world_transform =
-          scene->active_world_transform[tar_skeleton->transform_start +
+          scene->active_world_transform[tar_skeleton.transform_start +
                                         active.id];
 
       core::Transform parent_world_transform =
-          scene->active_world_transform[tar_skeleton->transform_start +
+          scene->active_world_transform[tar_skeleton.transform_start +
                                         active.parent];
 
       joint_world_transform = joint_local_transform * parent_world_transform;
     }
   }
 
-  static Joint *findJoint(std::unique_ptr<core::Scene> &scene,
-                          std::unique_ptr<Skeleton> &src, std::string &name) {
-    for (int idx = 0; idx < src->size; ++idx) {
-      int joint_id = src->joint_start + idx;
+  static Joint *findJoint(std::unique_ptr<core::Scene> &scene, Skeleton &src,
+                          std::string &name) {
+    for (int idx = 0; idx < src.size; ++idx) {
+      int joint_id = src.joint_start + idx;
       if (scene->joints[joint_id].name == name) {
         return &scene->joints[joint_id];
       }
@@ -81,10 +80,8 @@ struct AnimationRetargetter {
     return nullptr;
   }
 
-  static void rotate(std::unique_ptr<core::Scene> &scene,
-                     std::unique_ptr<Skeleton> &src_sk,
-                     std::unique_ptr<Skeleton> &tar_sk, Joint *src_bone,
-                     Joint *tar_bone) {
+  static void rotate(std::unique_ptr<core::Scene> &scene, Skeleton &src_sk,
+                     Skeleton &tar_sk, Joint *src_bone, Joint *tar_bone) {
 
     // Source parent joint
 
@@ -124,18 +121,16 @@ struct AnimationRetargetter {
     }
 
     core::Transform &target_local_rotation =
-        scene->active_transform[tar_sk->transform_start + tar_bone->id];
+        scene->active_transform[tar_sk.transform_start + tar_bone->id];
     target_local_rotation.rotation = tar_a * src_world_rotation;
   };
 
   static glm::quat getRotation(std::unique_ptr<core::Scene> &scene,
-                               std::unique_ptr<Skeleton> &sk, int bone_id,
-                               TransformType t) {
+                               Skeleton &sk, int bone_id, TransformType t) {
     if (t == POSE_TRANSFORM)
-      return scene->active_transform[sk->transform_start + bone_id].rotation;
+      return scene->active_transform[sk.transform_start + bone_id].rotation;
     else if (t == BIND_WORLD_TRANSFORM)
-      return scene->bind_world_transform[sk->transform_start + bone_id]
-          .rotation;
+      return scene->bind_world_transform[sk.transform_start + bone_id].rotation;
     return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
   }
 
