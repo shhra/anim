@@ -34,7 +34,7 @@ public:
 
   std::unique_ptr<core::Camera> &getCam() { return this->cam; }
 
-  virtual void render(Shader &shader) { renderer.render(shader); }
+  virtual void render(Shader &shader) { renderer.render(shader, true); }
 
   virtual void addUI() {
     for (auto &skeleton : scene->skeletons) {

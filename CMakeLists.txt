@@ -56,6 +56,7 @@ add_executable(visualization
   src/animation/bone.hpp
   src/animation/bone.cpp
   src/animation/bone_mesh.hpp
+  src/animation/cube_mesh.hpp
   src/animation/bvhimporter.hpp
   src/animation/bvhimporter.cpp
   src/animation/loader.hpp

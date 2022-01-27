@@ -42,31 +42,6 @@ struct AnimationRetargetter {
       rotate(scene, src_skeleton, tar_skeleton, src_joint, tar_joint);
     }
 
-    const core::Transform joint_local_transform =
-        scene->active_transform[tar_skeleton.transform_start];
-
-    core::Transform &joint_world_transform =
-        scene->active_world_transform[tar_skeleton.transform_start];
-    joint_world_transform = joint_local_transform;
-
-    for (int idx = 1; idx < tar_skeleton.size; idx++) {
-      int joint_id = tar_skeleton.joint_start + idx;
-
-      Joint &active = scene->joints[joint_id];
-
-      core::Transform &joint_local_transform =
-          scene->active_transform[tar_skeleton.transform_start + active.id];
-
-      core::Transform &joint_world_transform =
-          scene->active_world_transform[tar_skeleton.transform_start +
-                                        active.id];
-
-      core::Transform parent_world_transform =
-          scene->active_world_transform[tar_skeleton.transform_start +
-                                        active.parent];
-
-      joint_world_transform = joint_local_transform * parent_world_transform;
-    }
   }
 
   static Joint *findJoint(std::unique_ptr<core::Scene> &scene, Skeleton &src,
@@ -123,6 +98,11 @@ struct AnimationRetargetter {
     core::Transform &target_local_rotation =
         scene->active_transform[tar_sk.transform_start + tar_bone->id];
     target_local_rotation.rotation = tar_a * src_world_rotation;
+
+    // Update the rotations
+
+
+
   };
 
   static glm::quat getRotation(std::unique_ptr<core::Scene> &scene,
