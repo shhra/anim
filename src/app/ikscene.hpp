@@ -20,18 +20,25 @@ public:
     initialize();
   }
 
-  virtual void initialize() { createScene(); }
+  virtual void initialize() {
+    createScene();
+    anim::SkeletonTransformation::updateTransforms(scene, 0);
+  }
 
   virtual void handleUpdates(int *i) {
 
     // apply IK
     auto targetTransform = core::Transform(
-        cube_position, glm::quat(1.0, 0.0, 0.0, 0.0), glm::vec3(1.0));
+        cube_position,
+        glm::angleAxis(glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0)),
+        glm::vec3(1.0));
 
-    anim::InverseKinematics::applyIK(scene, scene->skeletons[0],
-                                     targetTransform);
+    auto ik = anim::InverseKinematics::applyIK(scene, scene->skeletons[0],
+                                               targetTransform);
 
-    anim::SkeletonTransformation::updateTransforms(scene, 0);
+    if (ik) {
+      anim::SkeletonTransformation::updateTransforms(scene, 0);
+    }
   }
 
   virtual std::unique_ptr<core::Camera> &getCam() { return this->cam; }
@@ -92,7 +99,7 @@ public:
     std::string cube = "Cube position";
     if (ImGui::CollapsingHeader(cube.c_str())) {
       // Create a slider for the cube position
-      ImGui::SliderFloat3("Position", &cube_position[0], -10.0f, 10.0f);
+      ImGui::SliderFloat3("Position", &cube_position[0], -5.0f, 5.0f);
     }
   }
 
@@ -113,7 +120,7 @@ private:
   int selected_transform = -1;
   core::Transform copy;
   bool is_first_copy = true;
-  glm::vec3 cube_position = glm::vec3(0.0f, 5.0f, 0.0f);
+  glm::vec3 cube_position = glm::vec3(0.0f, 4.375f, 0.0f);
 
   void createRoot() {
     core::Transform joint_one_transform = core::Transform(

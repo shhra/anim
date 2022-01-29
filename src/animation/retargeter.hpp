@@ -3,6 +3,7 @@
 
 #include "../core/scene.hpp"
 #include "bone.hpp"
+#include "joint.hpp"
 #include <glm/ext/quaternion_common.hpp>
 #include <memory>
 #include <string>
@@ -41,6 +42,8 @@ struct AnimationRetargetter {
 
       rotate(scene, src_skeleton, tar_skeleton, src_joint, tar_joint);
     }
+
+    anim::SkeletonTransformation::updateWorldTransforms(scene, tar_skeleton.id);
 
   }
 

@@ -29,7 +29,28 @@ struct Transform {
 
   //! Given the forward vector and towards direction, calculate the transform
   //! and return the rotated transform. This transformation mutates the state.
-  Transform lookAt(glm::vec3 &target, glm::vec3 &forward);
+  static Transform lookAt(glm::vec3 &target, glm::vec3 &forward) {
+    auto t = glm::normalize(target);
+    auto f = glm::normalize(forward);
+    if (f == t) {
+      return Transform();
+    } else if (f == t * -1.0f) {
+      glm::vec3 ortho = glm::vec3(1.0f, 0.0f, 0.0f);
+      if (fabsf(f.y) < fabsf(f.x)) {
+        ortho = glm::vec3(0.0f, 1.0f, 0.0f);
+      }
+      if (fabsf(f.z) < fabs(f.y) && fabs(f.z) < fabsf(f.x)) {
+        ortho = glm::vec3(0.0f, 0.0f, 1.0f);
+      }
+      glm::vec3 axis = glm::normalize(glm::cross(f, ortho));
+      auto rotation = glm::angleAxis(glm::radians(0.0f), axis);
+      return Transform(glm::vec3(0.0f), rotation, glm::vec3(1.0f));
+    }
+    glm::vec3 half = glm::normalize(f + t);
+    glm::vec3 axis = glm::cross(f, half);
+    auto rotation = glm::quat(glm::dot(f, half), axis.x, axis.y, axis.z);
+    return Transform(glm::vec3(0.0f), rotation, glm::vec3(1.0f));
+  }
 
   //! Create Transform just using rotation. This sets translation to 0 and scale
   //! to 1.

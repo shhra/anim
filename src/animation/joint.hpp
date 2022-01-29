@@ -85,8 +85,86 @@ struct SkeletonTransformation {
       joint_model = world;
     }
   }
-};
 
+  static void updateWorldTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+    auto tar_skeleton = scene->skeletons[id];
+    const core::Transform joint_local_transform =
+        scene->active_transform[tar_skeleton.transform_start];
+
+    core::Transform &joint_world_transform =
+        scene->active_world_transform[tar_skeleton.transform_start];
+    joint_world_transform = joint_local_transform;
+
+    for (int idx = 1; idx < tar_skeleton.size; idx++) {
+      int joint_id = tar_skeleton.joint_start + idx;
+
+      Joint &active = scene->joints[joint_id];
+
+      core::Transform &joint_local_transform =
+          scene->active_transform[tar_skeleton.transform_start + active.id];
+
+      core::Transform &joint_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.id];
+
+      core::Transform parent_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.parent];
+
+      joint_world_transform = joint_local_transform * parent_world_transform;
+    }
+  }
+
+  static void updateActiveTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+    auto tar_skeleton = scene->skeletons[id];
+    core::Transform &joint_local_transform =
+        scene->active_transform[tar_skeleton.transform_start];
+
+    const core::Transform joint_world_transform =
+        scene->active_world_transform[tar_skeleton.transform_start];
+    joint_local_transform = joint_world_transform;
+
+    for (int idx = 1; idx < tar_skeleton.size; idx++) {
+      int joint_id = tar_skeleton.joint_start + idx;
+
+      Joint &active = scene->joints[joint_id];
+
+      core::Transform &joint_local_transform =
+          scene->active_transform[tar_skeleton.transform_start + active.id];
+
+      core::Transform &joint_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.id];
+
+      core::Transform parent_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.parent];
+      glm::mat4 parent_transform = glm::inverse(parent_world_transform.toMat4());
+      glm::mat4 world_transform = joint_world_transform.toMat4();
+      glm::mat4 local = parent_transform * world_transform;
+      joint_local_transform = core::Transform(local);
+    }
+  }
+
+  static void computeWorldTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+    auto tar_skeleton = scene->skeletons[id];
+    for (int idx = 1; idx < tar_skeleton.size; idx++) {
+      int joint_id = tar_skeleton.joint_start + idx;
+      Joint &active = scene->joints[joint_id];
+
+      core::Transform &joint_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.id];
+
+      core::Transform parent_world_transform =
+          scene->active_world_transform[tar_skeleton.transform_start +
+                                        active.parent];
+
+      joint_world_transform = joint_world_transform * parent_world_transform;
+    }
+  }
+
+};
 } // namespace anim
 
 #endif // JOINT_H_
