@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 project(visualization)
 
@@ -37,6 +38,7 @@ add_executable(visualization
   src/tinygltf.cc
   src/core/shader.hpp
   src/core/mesh.hpp
+  src/core/files.hpp
   src/core/grid.hpp
   src/core/models.hpp
   src/core/models.cpp

@@ -11,6 +11,7 @@
 #include "core/input.hpp"
 #include "core/ui.hpp"
 #include "core/window.hpp"
+#include "core/files.hpp"
 
 int main() {
   core::Window window = core::Window(1280, 720);
