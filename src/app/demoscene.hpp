@@ -2,8 +2,11 @@
 #define DEMOSCENE_H_
 
 #include "../core/ui.hpp"
+#include "../core/files.hpp"
 #include "scene.hpp"
+#include <filesystem>
 #include <memory>
+
 
 // TODO: Make this demoscene read a config file!
 namespace app {
@@ -42,7 +45,7 @@ public:
     }
     if (selected_transform > -1) {
       // Create a popup window for the transform values.
-      if(is_first_copy == true) {
+      if (is_first_copy == true) {
         copy = scene->active_transform[selected_transform];
         is_first_copy = false;
       }
@@ -67,14 +70,15 @@ public:
   }
 
 private:
+  Files animations;
   anim::AnimationRetargetter::MapDatabase map_db;
   anim::AnimDatabase anim_db;
   anim::BVHImporter motion_data;
   std::unique_ptr<anim::Animation> motion_animation;
   std::unique_ptr<core::Scene> scene = nullptr;
   std::unique_ptr<core::Camera> cam = nullptr;
-  core::Model model = core::Model(
-      "/home/shailesh/Projects/Study/Visualization/assets/vegeta.gltf");
+  core::Model model =
+      core::Model(std::filesystem::path("../assets/vegeta.gltf").string());
   core::Renderer renderer = core::Renderer(cam, scene);
 
   // UI data goes in here.
@@ -83,6 +87,7 @@ private:
   bool is_first_copy = true;
 
   void loadData() {
+    animations = Files();
     std::vector<std::string> source = {
         "Hips",         "LeftUpLeg",  "LeftLeg",       "LeftFoot",
         "LeftToeBase",  "RightUpLeg", "RightLeg",      "RightFoot",
@@ -109,9 +114,9 @@ private:
 
     model.load();
     model.skeleton.bindTransforms(); // << this will be removed.
+    // TODO: Use the files to select the motion file.
     motion_data = anim::BVHImporter(
-        "/home/shailesh/Projects/Study/PFNN/pfnn/data/animations/"
-        "LocomotionFlat02_000.bvh");
+        std::filesystem::path("../assets/loco.bvh").string());
   }
 
   void fillScene() {
@@ -126,7 +131,6 @@ private:
         anim::AnimationLoader::loadMotionData(scene, motion_data, anim_db));
     anim::AnimationLoader::initialize(scene, motion_animation, anim_db);
   }
-
 };
 } // namespace app
 

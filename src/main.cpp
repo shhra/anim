@@ -1,4 +1,5 @@
 #include "app/demoscene.hpp"
+#include "app/enhanced.hpp"
 #include "app/ikscene.hpp"
 #include "app/scene.hpp"
 #include <glad/glad.h>
@@ -12,6 +13,7 @@
 #include "core/ui.hpp"
 #include "core/window.hpp"
 #include "core/files.hpp"
+#include <filesystem>
 
 int main() {
   core::Window window = core::Window(1280, 720);
@@ -19,12 +21,13 @@ int main() {
   window.initWindow();
   window.createContext();
 
-  Shader shader("/home/shailesh/Projects/Study/Visualization/src/vis.vert",
-                "/home/shailesh/Projects/Study/Visualization/src/vis.frag");
+  Shader shader(std::filesystem::path("../src/vis.vert").string().c_str(),
+                std::filesystem::path("../src/vis.frag").string().c_str());
   shader.use();
 
   // std::unique_ptr<app::Scene> app = std::make_unique<app::DemoScene>();
-  std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
+  // std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
+  std::unique_ptr<app::Scene> app = std::make_unique<app::Enhanced>();
 
 
   core::Input input(app->getCam(), 640.f, 360.0f);

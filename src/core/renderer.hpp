@@ -54,6 +54,9 @@ struct Renderer {
   }
 
   void updateInverseBindTransforms(Shader &shader, int skeleton_id) {
+    if (scene->skeletons.size() == 0) {
+      return;
+    }
     auto skeleton = scene->skeletons[skeleton_id];
     for (int idx = 0; idx < skeleton.size; idx++) {
       int access_idx = skeleton.transform_start + idx;
