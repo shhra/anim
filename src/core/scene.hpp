@@ -30,7 +30,7 @@ struct Scene {
   Grid grid;
   anim::BoneMesh bone_model = anim::BoneMesh();
 
-  std::vector<std::unique_ptr<Mesh>> meshes;
+  std::vector<std::unique_ptr<Mesh>> meshes = {};
   std::vector<glm::mat4> mesh_transforms = {};
 
   std::vector<anim::Skeleton> skeletons = {};
@@ -51,6 +51,9 @@ struct Scene {
 
   //! bone model transforms
   std::vector<glm::mat4> model_transforms = {};
+
+  //! Data to identify model skeleton.
+  std::vector<bool> is_model_skeleton = {};
 };
 
 struct SceneManager {
@@ -60,9 +63,14 @@ struct SceneManager {
   }
 
   static void addMesh(std::unique_ptr<Scene> &scene, std::unique_ptr<Mesh> &mesh) {
-    int id = mesh->id;
+    mesh->id = scene->meshes.size();
     scene->meshes.push_back(std::move(mesh));
     scene->mesh_transforms.push_back(glm::mat4(1.0f));
+  }
+
+  static void flushMesh(std::unique_ptr<Scene> &scene) {
+    scene->meshes.clear();
+    scene->mesh_transforms.clear();
   }
 };
 } // namespace core

@@ -70,7 +70,6 @@ public:
   }
 
 private:
-  Files animations;
   anim::AnimationRetargetter::MapDatabase map_db;
   anim::AnimDatabase anim_db;
   anim::BVHImporter motion_data;
@@ -87,7 +86,6 @@ private:
   bool is_first_copy = true;
 
   void loadData() {
-    animations = Files();
     std::vector<std::string> source = {
         "Hips",         "LeftUpLeg",  "LeftLeg",       "LeftFoot",
         "LeftToeBase",  "RightUpLeg", "RightLeg",      "RightFoot",
@@ -116,7 +114,7 @@ private:
     model.skeleton.bindTransforms(); // << this will be removed.
     // TODO: Use the files to select the motion file.
     motion_data = anim::BVHImporter(
-        std::filesystem::path("../assets/loco.bvh").string());
+        std::filesystem::path("../assets/data.bvh").string());
   }
 
   void fillScene() {

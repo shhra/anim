@@ -63,10 +63,6 @@ struct Ui {
     }
   }
 
-  static void FilesUI() {
-
-  }
-
   static void HelpMarker(const char *desc) {
     ImGui::TextDisabled("(?)");
     if (ImGui::IsItemHovered()) {

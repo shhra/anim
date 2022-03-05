@@ -120,7 +120,6 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
 
       // Load the normal data into the active mesh.
       if (attribute.first == "NORMAL") {
-        std::cout << "Going to implement normal attribute" << std::endl;
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
             glm::vec3 norm = glm::vec3(0.0f);
@@ -137,7 +136,6 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
 
       // Load the joint data into the active mesh.
       if (attribute.first == "JOINTS_0") {
-        std::cout << "Going to implement joint attribute" << std::endl;
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
           // Now load the joint data into the mesh.
           for (size_t v_pos = 0; v_pos < accessor.count; v_pos++) {
@@ -174,7 +172,6 @@ void Model::loadMesh(tinygltf::Mesh &mesh, int skin_id, glm::mat4 transform) {
 
       // Load the skinning weights into the active mesh.
       if (attribute.first == "WEIGHTS_0") {
-        std::cout << "Going to implement skinning weights" << std::endl;
         // Parse the weight data as a float by checking the component type to be
         // a float. Do not implement for other cases.
         if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {

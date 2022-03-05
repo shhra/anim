@@ -11,18 +11,19 @@ namespace anim {
 
 struct SkeletonTransformation {
   static void fillSkeletons(std::unique_ptr<core::Scene> &scene,
-                            core::Skeleton skeleton) {
+                            core::Skeleton skeleton, bool is_model = false) {
 
     int skeleton_id = scene->skeletons.size();
 
     // Create a new skeleton
     auto anim_skeleton = anim::Skeleton();
     anim_skeleton.id = skeleton_id;
-    anim_skeleton.transform_start = scene->active_transform.size();
+    anim_skeleton.transform_start = scene->active_world_transform.size();
     anim_skeleton.joint_start = scene->joints.size();
     anim_skeleton.size = skeleton.size();
 
     scene->skeletons.push_back(anim_skeleton);
+    scene->is_model_skeleton.push_back(is_model);
 
     for (auto &joint : skeleton.getJoint()) {
       scene->active_transform.push_back(joint.transform);
@@ -31,7 +32,7 @@ struct SkeletonTransformation {
       scene->bind_transform.push_back(joint.bindTransform);
       scene->bind_world_transform.push_back(joint.bindWorldTransform);
 
-      assert(scene->active_transform.size() - 1 ==
+      assert(scene->active_world_transform.size() - 1 ==
              scene->skeletons[skeleton_id].transform_start + joint.id);
       auto anim_joint = anim::Joint();
       anim_joint.id = joint.id;
@@ -47,6 +48,21 @@ struct SkeletonTransformation {
     for (int i = 0; i < skeleton.size(); ++i) {
       scene->model_transforms.push_back(glm::mat4(1.0f));
     }
+  }
+
+  static void flushSkeletons(std::unique_ptr<core::Scene> &scene) {
+    scene->skeletons.clear();
+
+    scene->active_transform.clear();
+    scene->bind_transform.clear();
+
+    scene->active_world_transform.clear();
+    scene->bind_world_transform.clear();
+
+    scene->inverse_bind_transform.clear();
+    scene->joints.clear();
+
+    scene->model_transforms.clear();
   }
 
   static void updateTransforms(std::unique_ptr<core::Scene> &scene, int id) {
