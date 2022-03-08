@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+namespace core {
 class Files {
 public:
   Files(const char *name) {
@@ -68,9 +69,7 @@ public:
     ImGui::End();
   }
 
-  const char* selected_file() {
-    return selected.c_str();
-  }
+  const char *selected_file() { return selected.c_str(); }
 
 private:
   std::string name;
@@ -79,5 +78,5 @@ private:
   std::filesystem::path selected = std::filesystem::current_path();
   std::vector<std::filesystem::path> files;
 };
-
+} // namespace Core
 #endif // FILES_H_

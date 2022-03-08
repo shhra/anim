@@ -65,6 +65,8 @@ add_executable(visualization
   src/animation/loader.hpp
   src/animation/retargeter.hpp
   src/animation/retargeter.cpp
+
+  src/ui/mapper.hpp
   ${IMGUI_SOURCES})
 
 target_link_libraries(visualization glfw ${GLFW_LIBRARIES}

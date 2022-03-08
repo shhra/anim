@@ -2,6 +2,7 @@
 #define ENHANCED_H
 #include "../core/files.hpp"
 #include "../core/ui.hpp"
+#include "../ui/mapper.hpp"
 #include "imgui.h"
 #include "scene.hpp"
 #include <cstddef>
@@ -53,12 +54,16 @@ struct Enhanced : public Scene {
       if (fillMesh())
         load_model = false;
     }
+    if (load_animation && load_model) {
+      mapper.mapData(model, motion_importer);
+    }
   }
 
 private:
   std::unique_ptr<core::Scene> scene = nullptr;
   std::unique_ptr<core::Camera> cam = nullptr;
   std::unique_ptr<core::Renderer> renderer = nullptr;
+  ui::BoneMapper mapper;
 
   std::unique_ptr<core::Model> model = nullptr;
   std::unique_ptr<anim::BVHImporter> motion_importer = nullptr;
@@ -69,8 +74,9 @@ private:
   bool load_animation;
   bool load_model;
 
-  Files animation = Files("animation");
-  Files models = Files("models");
+  core::Files animation = core::Files("animation");
+  core::Files models = core::Files("models");
+
 
   void emptyScene() {
     anim_db = anim::AnimDatabase();
