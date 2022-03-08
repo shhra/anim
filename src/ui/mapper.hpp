@@ -20,10 +20,9 @@ struct BoneMapper {
   void mapData(std::unique_ptr<core::Model> &target,
                std::unique_ptr<anim::BVHImporter> &motion_data) {
     // Promp the use to create a new map or load an old map.
-    if (!promptUser()) {
-      // Creates an UI that allows mapping two Skeletons
-      loadBoneData(motion_data);
-    }
+    promptUser();
+    // Creates an UI that allows mapping two Skeletons
+    loadBoneData(motion_data);
 
     // Iterate through model skeleton and create a two UI that writes the
     // Relationship to a tuple.
@@ -37,26 +36,33 @@ private:
   const std::vector<std::string> BoneNames = {};
 
   const std::map<std::string, std::string> SkeletonMap = {};
+  bool load_new = false;
+  bool show_browser = false;
 
   void loadBoneData(std::unique_ptr<anim::BVHImporter> &motion_data) {
     // Iterate through the skeleton data and write the motion data into
     // Bone Maps
   }
 
-  bool promptUser() {
+  void promptUser() {
     // Currently the file is checked from assets directory.
-    std::filesystem::path asset_dir = "./assets";
-    core::Files data = core::Files("data");
-    ImGui::Text("Do you want to load mapper?");
-    ImGui::Separator();
-    bool load = false;
-    if (ImGui::Button("Load previous")) {
-      // Select file and load it.
-      load = true;
-      data.navigationUI(".txt", &load);
-      load = true;
+    std::filesystem::path asset_dir =
+        "./assets"; // TODO: Make sure this directory exists
+    std::filesystem::path file = std::filesystem::current_path();
+    ImGui::Text("Mapper: ");
+    ImGui::SameLine();
+    if (ImGui::Button("Load")) {
+      show_browser = true;
     }
-    return load;
+    ImGui::SameLine();
+    if (ImGui::Button("New")) {
+      load_new = true;
+    }
+
+    if (ImGui::CollapsingHeader("Load previous", &show_browser,
+                                ImGuiTreeNodeFlags_DefaultOpen)) {
+      core::Files::load(asset_dir, ".txt", &file, &show_browser);
+    }
   }
 };
 

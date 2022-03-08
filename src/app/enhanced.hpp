@@ -54,7 +54,7 @@ struct Enhanced : public Scene {
       if (fillMesh())
         load_model = false;
     }
-    if (load_animation && load_model) {
+    if (model && motion_importer) {
       mapper.mapData(model, motion_importer);
     }
   }

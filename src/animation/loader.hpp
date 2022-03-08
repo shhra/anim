@@ -94,7 +94,7 @@ struct AnimationLoader {
     core::Transform &root_transform = scene->active_transform[transform_idx];
     root_transform = scene->active_transform[frame_idx];
     core::Transform &root_world = scene->active_world_transform[transform_idx];
-    root_world = scene->active_world_transform[transform_idx];
+    root_world = scene->active_transform[transform_idx];
 
     frame_idx++;
     for (int idx = 1; idx < skeleton.size; idx++) {

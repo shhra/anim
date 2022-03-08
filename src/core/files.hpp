@@ -15,16 +15,29 @@ public:
     if (!std::filesystem::exists("../assets")) {
       std::filesystem::create_directory("../assets");
     }
-    root = std::filesystem::absolute(std::filesystem::path("assets"));
+    root = std::filesystem::absolute(std::filesystem::path("../assets"));
   }
 
-  void load(std::string &path, std::string ext) {
+  static void load(std::filesystem::path &path, std::string ext,
+                   std::filesystem::path *data_file, bool* show) {
     auto root = std::filesystem::path(path);
+    *data_file = root;
     // Iterate through this directory and load the animations.
     for (auto const &file : std::filesystem::directory_iterator(root)) {
-      if (file.is_regular_file() &&
-          std::filesystem::path(file).extension().string() == "." + ext) {
-        std::cout << file << std::endl;
+      if ((file.path().stem().string().find(".") == std::string::npos) &&
+          ((file.path().extension().string() == ext) ||
+           (file.is_directory())) &&
+          ImGui::Selectable(file.path().filename().c_str(),
+                            *data_file == file.path(),
+                            ImGuiSelectableFlags_AllowDoubleClick)) {
+        if (file.is_directory()) {
+          root = file.path();
+        } else if (file.is_regular_file()) {
+          if (ImGui::IsMouseDoubleClicked(0)) {
+            *data_file = file.path();
+            *show = false;
+          }
+        }
       }
     }
   }
@@ -78,5 +91,5 @@ private:
   std::filesystem::path selected = std::filesystem::current_path();
   std::vector<std::filesystem::path> files;
 };
-} // namespace Core
+} // namespace core
 #endif // FILES_H_
