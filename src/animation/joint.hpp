@@ -25,7 +25,7 @@ struct SkeletonTransformation {
     scene->skeletons.push_back(anim_skeleton);
     scene->is_model_skeleton.push_back(is_model);
 
-    for (auto &joint : skeleton.getJoint()) {
+    for (auto &joint : skeleton.getJoints()) {
       scene->active_transform.push_back(joint.transform);
       scene->active_world_transform.push_back(joint.worldTransform);
 

@@ -148,7 +148,7 @@ struct Skeleton {
   //! Sets the root id
   void setRoot(std::size_t id) { this->root_id = id; }
 
-  const std::vector<Joint> &getJoint() const { return joints; }
+  const std::vector<Joint> &getJoints() const { return joints; }
 
 private:
   // TODO: Joints can be decouples from skeletons too.
