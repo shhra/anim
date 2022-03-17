@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <filesystem>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
@@ -27,11 +28,6 @@ struct BoneMapper {
       loadBoneData(target, motion_data);
     }
 
-    // Iterate through model skeleton and create a two UI that writes the
-    // Relationship to a tuple.
-
-    // Iterate throuh the tuple and store it as a map
-
     // If new map ask the user to save it.
     if (load_new) {
       // Create a new window.
@@ -46,6 +42,14 @@ private:
   bool show_browser = false;
   bool target_loaded = false;
   bool src_loaded = false;
+  bool is_save = false;
+  bool is_edit = false;
+  bool loaded = false;
+  char save_file[256] = "default";
+  // TODO: Assert asset_dir exists
+  std::filesystem::path asset_dir = "./assets";
+  std::filesystem::path file = asset_dir;
+  std::filesystem::path old_file = asset_dir;
 
   void loadBoneData(std::unique_ptr<core::Model> &target,
                     std::unique_ptr<anim::BVHImporter> &motion_data) {
@@ -61,9 +65,6 @@ private:
 
   void promptUser() {
     // Currently the file is checked from assets directory.
-    std::filesystem::path asset_dir =
-        "./assets"; // TODO: Make sure this directory exists
-    std::filesystem::path file = std::filesystem::current_path();
     ImGui::Text("Mapper: ");
     ImGui::SameLine();
     if (ImGui::Button("Load")) {
@@ -73,7 +74,23 @@ private:
     if (ImGui::Button("New")) {
       load_new = true;
     }
-
+    ImGui::SameLine();
+    if (file != old_file) {
+      loaded = true;
+      is_edit = true;
+      old_file = file;
+    }
+    if (loaded) {
+      load();
+      loaded = false;
+    }
+    if (is_edit) {
+      // Fill the table and load the mapper.
+      if (ImGui::Button("Edit")) {
+        load_new = true;
+      }
+    }
+    ImGui::Separator();
     if (ImGui::CollapsingHeader("Load previous", &show_browser,
                                 ImGuiTreeNodeFlags_DefaultOpen)) {
       core::Files::load(asset_dir, ".txt", &file, &show_browser);
@@ -82,8 +99,7 @@ private:
 
   void showMapper() {
     ImGui::OpenPopup("Bone Mapper");
-    if (ImGui::BeginPopupModal("Bone Mapper", nullptr,
-                               ImGuiWindowFlags_MenuBar)) {
+    if (ImGui::BeginPopupModal("Bone Mapper", nullptr)) {
       if (ImGui::Button("Close")) {
         load_new = false;
         ImGui::CloseCurrentPopup();
@@ -94,6 +110,15 @@ private:
           std::cout << data.first << " maps to " << data.second << std::endl;
         }
       }
+      ImGui::SameLine();
+      if (!is_save && ImGui::Button("Save")) {
+        is_save = true;
+        ImGui::OpenPopup("Save File As");
+      }
+      if (is_save) {
+        save();
+        ImGui::CloseCurrentPopup();
+      }
       ImGui::Separator();
       for (auto &data : src_target_map) {
         // Begin dropdown and select the value;
@@ -102,6 +127,40 @@ private:
       }
       ImGui::EndPopup();
     }
+  }
+
+  void save() {
+    if (ImGui::BeginPopupModal("Save File As", &is_save)) {
+      ImGui::InputTextWithHint("File Name", "Type the save file name here",
+                               save_file, IM_ARRAYSIZE(save_file));
+      ImGui::SameLine();
+      if (ImGui::Button("Ok")) {
+        std::ofstream data_file;
+        data_file.open("assets/" + std::string(save_file) +
+                       ".txt"); // Optimize this later on.
+        for (auto &data : src_target_map) {
+          data_file << data.first << ", " << data.second << "\n";
+        }
+        data_file.close();
+        is_edit = false;
+        is_save = false;
+        load_new = false;
+        ImGui::CloseCurrentPopup();
+      }
+      ImGui::EndPopup();
+    }
+  }
+
+  void load() {
+    std::ifstream data_file;
+    std::cout << "Opening file: " << file << std::endl;
+    data_file.open(file);
+    std::string line;
+    while (std::getline(data_file, line)) {
+      std::cout << line << std::endl;
+    }
+
+    data_file.close();
   }
 
   void showDropDown(std::string name, std::string *item) {
