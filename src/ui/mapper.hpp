@@ -56,8 +56,9 @@ private:
     for (auto bone : target->skeleton.getJoints()) {
       target_bone_names.push_back(bone.name);
     }
+    target_bone_names.push_back("-");
     for (auto bone : motion_data->skeleton.getJoints()) {
-      src_target_map[bone.name] = "";
+      src_target_map[bone.name] = "-";
     }
     target_loaded = true;
     src_loaded = true;
@@ -117,7 +118,7 @@ private:
       }
       if (is_save) {
         save();
-        ImGui::CloseCurrentPopup();
+        // ImGui::CloseCurrentPopup();
       }
       ImGui::Separator();
       for (auto &data : src_target_map) {
@@ -130,7 +131,7 @@ private:
   }
 
   void save() {
-    if (ImGui::BeginPopupModal("Save File As", &is_save)) {
+    if (ImGui::BeginPopupModal("Save File As")) {
       ImGui::InputTextWithHint("File Name", "Type the save file name here",
                                save_file, IM_ARRAYSIZE(save_file));
       ImGui::SameLine();
@@ -157,9 +158,11 @@ private:
     data_file.open(file);
     std::string line;
     while (std::getline(data_file, line)) {
-      std::cout << line << std::endl;
+      auto source = line.substr(0, line.find(", "));
+      line.erase(0, line.find(", ") + 2);
+      auto target = line;
+      src_target_map[source] = target;
     }
-
     data_file.close();
   }
 
