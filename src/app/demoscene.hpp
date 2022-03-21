@@ -128,7 +128,10 @@ private:
     motion_animation = std::move(
         anim::AnimationLoader::loadMotionData(scene, motion_data, anim_db));
     anim::AnimationLoader::initialize(scene, motion_animation, anim_db);
+
+    scene->is_model_skeleton = {true, false};
   }
+
 };
 } // namespace app
 

@@ -31,8 +31,14 @@ struct Enhanced : public Scene {
         *i = 0;
       }
       anim::AnimationLoader::setFrame(scene, motion_animation, anim_db, *i);
-      anim::SkeletonTransformation::updateTransforms(
-          scene, *anim_db[motion_animation.get()]);
+      if (!map_db.empty()) {
+        anim::AnimationRetargetter::retarget(scene, scene->skeletons[1],
+                                             scene->skeletons[0], map_db);
+        anim::SkeletonTransformation::updateTransforms(scene, 0); // HACK! HACK!
+        anim::SkeletonTransformation::updateTransforms(
+            // scene, *anim_db[motion_animation.get()]);
+            scene, 1);
+      }
     }
   }
 
@@ -57,6 +63,20 @@ struct Enhanced : public Scene {
     if (model && motion_importer) {
       mapper.mapData(model, motion_importer);
     }
+
+    if (mapper.is_loaded()) {
+      std::vector<std::string> source = {};
+      std::vector<std::string> target = {};
+      for (auto &data : mapper.get_map()) {
+        if (data.second == "-")
+          continue;
+        source.push_back(data.first);
+        target.push_back(data.second);
+      }
+      map_db = anim::AnimationRetargetter::createMap(source, target);
+      std::cout << map_db.size() << std::endl;
+      mapper.unload();
+    }
   }
 
 private:
@@ -70,13 +90,13 @@ private:
   std::unique_ptr<anim::Animation> motion_animation = nullptr;
 
   anim::AnimDatabase anim_db;
+  anim::AnimationRetargetter::MapDatabase map_db;
 
   bool load_animation;
   bool load_model;
 
   core::Files animation = core::Files("animation");
   core::Files models = core::Files("models");
-
 
   void emptyScene() {
     anim_db = anim::AnimDatabase();

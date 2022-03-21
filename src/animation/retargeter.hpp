@@ -4,6 +4,7 @@
 #include "../core/scene.hpp"
 #include "bone.hpp"
 #include "joint.hpp"
+#include <cstdio>
 #include <glm/ext/quaternion_common.hpp>
 #include <memory>
 #include <string>
@@ -39,12 +40,10 @@ struct AnimationRetargetter {
     for (auto &src_tar_pair : data) {
       auto src_joint = findJoint(scene, src_skeleton, src_tar_pair.first);
       auto tar_joint = findJoint(scene, tar_skeleton, src_tar_pair.second);
-
       rotate(scene, src_skeleton, tar_skeleton, src_joint, tar_joint);
     }
 
     anim::SkeletonTransformation::updateWorldTransforms(scene, tar_skeleton.id);
-
   }
 
   static Joint *findJoint(std::unique_ptr<core::Scene> &scene, Skeleton &src,
@@ -103,9 +102,6 @@ struct AnimationRetargetter {
     target_local_rotation.rotation = tar_a * src_world_rotation;
 
     // Update the rotations
-
-
-
   };
 
   static glm::quat getRotation(std::unique_ptr<core::Scene> &scene,

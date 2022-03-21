@@ -26,7 +26,7 @@ struct AnimationLoader {
     animation->end = end;
     animation->frame_time = data.animation.frame_time;
     animation->frames = std::move(data.animation.frames);
-    SkeletonTransformation::fillSkeletons(scene, data.skeleton);
+    SkeletonTransformation::fillSkeletons(scene, data.skeleton, false);
 
     scene->active_transform.insert(scene->active_transform.begin() + start,
                                    data.transforms.begin(),

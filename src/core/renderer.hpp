@@ -64,14 +64,14 @@ struct Renderer {
     }
     auto skeleton = scene->skeletons[skeleton_id];
     for (int idx = 0; idx < skeleton.size; idx++) {
-      int access_idx = skeleton.transform_start + idx;
+      int joint = skeleton.joint_start + idx;
+      auto ac_joint = scene->joints[joint];
+      int access_idx = skeleton.transform_start + ac_joint.id;
       auto world_transform = scene->active_world_transform[access_idx].toMat4();
       auto bind_world_transform =
           scene->bind_world_transform[access_idx].toMat4();
       std::string name = "inversebindPose[" + std::to_string(idx) + "]";
       shader.setMat4(name, glm::inverse(bind_world_transform));
-      // Print the inverse bind pose using glm::to_string.
-
       std::string world_name = "worldPose[" + std::to_string(idx) + "]";
       shader.setMat4(world_name, world_transform);
     }

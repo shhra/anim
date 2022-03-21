@@ -35,6 +35,13 @@ struct BoneMapper {
     }
   }
 
+  std::map<std::string, std::string> &get_map() { return src_target_map; }
+
+  bool is_loaded() { return file_loaded; }
+  void unload() {
+    file_loaded = false;
+  }
+
 private:
   std::vector<std::string> target_bone_names = {};
   std::map<std::string, std::string> src_target_map = {};
@@ -44,7 +51,8 @@ private:
   bool src_loaded = false;
   bool is_save = false;
   bool is_edit = false;
-  bool loaded = false;
+  bool file_accessed = false;
+  bool file_loaded = false;
   char save_file[256] = "default";
   // TODO: Assert asset_dir exists
   std::filesystem::path asset_dir = "./assets";
@@ -77,13 +85,14 @@ private:
     }
     ImGui::SameLine();
     if (file != old_file) {
-      loaded = true;
+      file_accessed = true;
       is_edit = true;
       old_file = file;
     }
-    if (loaded) {
+    if (file_accessed) {
       load();
-      loaded = false;
+      file_accessed = false;
+      file_loaded = true;
     }
     if (is_edit) {
       // Fill the table and load the mapper.
