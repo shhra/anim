@@ -2,17 +2,17 @@
 #include "app/enhanced.hpp"
 #include "app/ikscene.hpp"
 #include "app/scene.hpp"
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 #include <memory>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "core/files.hpp"
 #include "core/input.hpp"
 #include "core/ui.hpp"
 #include "core/window.hpp"
-#include "core/files.hpp"
 #include <filesystem>
 
 int main() {
@@ -27,12 +27,10 @@ int main() {
 
   // std::unique_ptr<app::Scene> app = std::make_unique<app::DemoScene>();
   // std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
-  std::unique_ptr<app::Scene> app = std::make_unique<app::Enhanced>();
-
+  std::unique_ptr<app::Scene> app = std::make_unique<app::SimpleScene>();
 
   core::Input input(app->getCam(), 640.f, 360.0f);
   window.registerCallbacks(&input);
-
 
   Ui::Init(window.getContext());
   // window.postContext(&scene);
@@ -54,6 +52,5 @@ int main() {
 
   Ui::terminate();
   window.terminate();
-
   return 0;
 }

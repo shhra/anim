@@ -9,8 +9,8 @@
 #include <memory>
 
 namespace app {
-struct Enhanced : public Scene {
-  Enhanced()
+struct SimpleScene : public Scene {
+  SimpleScene()
       : cam(std::move(std::make_unique<core::Camera>(20))),
         scene(std::move(std::make_unique<core::Scene>())) {
     this->renderer = std::make_unique<core::Renderer>(this->cam, this->scene);
@@ -32,12 +32,13 @@ struct Enhanced : public Scene {
       }
       anim::AnimationLoader::setFrame(scene, motion_animation, anim_db, *i);
       if (!map_db.empty()) {
-        anim::AnimationRetargetter::retarget(scene, scene->skeletons[1],
-                                             scene->skeletons[0], map_db);
-        anim::SkeletonTransformation::updateTransforms(scene, 0); // HACK! HACK!
+        anim::AnimationRetargetter::retarget(
+            scene, scene->skeletons[*anim_db[motion_animation.get()]],
+            scene->skeletons[active_model_skeleton], map_db);
+        anim::SkeletonTransformation::updateTransforms(scene,
+                                                       active_model_skeleton);
         anim::SkeletonTransformation::updateTransforms(
-            // scene, *anim_db[motion_animation.get()]);
-            scene, 1);
+            scene, *anim_db[motion_animation.get()]);
       }
     }
   }
@@ -92,6 +93,8 @@ private:
   anim::AnimDatabase anim_db;
   anim::AnimationRetargetter::MapDatabase map_db;
 
+  int active_model_skeleton = -1;
+
   bool load_animation;
   bool load_model;
 
@@ -111,6 +114,7 @@ private:
         core::SceneManager::addMesh(scene, m);
       }
       anim::SkeletonTransformation::fillSkeletons(scene, model->skeleton, true);
+      active_model_skeleton = scene->skeletons.size() - 1;
     }
     return true;
   }

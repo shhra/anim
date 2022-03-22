@@ -38,6 +38,7 @@ struct Scene {
   //! Active pose.
   std::vector<Transform> active_transform = {};
   std::vector<Transform> active_world_transform = {};
+  std::vector<Transform> frame_transforms = {};
 
   //! Bind Pose.
   std::vector<Transform> bind_transform = {};
