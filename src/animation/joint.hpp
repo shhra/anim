@@ -9,7 +9,22 @@
 
 namespace anim {
 
+/** Basic functionalities related to scene skeletons.
+ *
+ * This structure acts as a proxy to access the functions that fills the scene
+ * skeleton and updates the skeleton transforms.
+ *
+ * */
 struct SkeletonTransformation {
+
+  /**
+   * Given the scene, it fills the scene with a new skeleton. The code is
+   * straight-forward without any tricks.
+   *
+   * Each skeleton is assigned an id that is the position of the skeleton on
+   * `scene->skeletons`
+   *
+   * */
   static void fillSkeletons(std::unique_ptr<core::Scene> &scene,
                             core::Skeleton skeleton, bool is_model = false) {
 
@@ -32,6 +47,7 @@ struct SkeletonTransformation {
       scene->bind_transform.push_back(joint.bindTransform);
       scene->bind_world_transform.push_back(joint.bindWorldTransform);
 
+      // This assures that we aren't overflowing or underflowing the transforms
       assert(scene->active_world_transform.size() - 1 ==
              scene->skeletons[skeleton_id].transform_start + joint.id);
       auto anim_joint = anim::Joint();
@@ -50,21 +66,18 @@ struct SkeletonTransformation {
     }
   }
 
-  static void flushSkeletons(std::unique_ptr<core::Scene> &scene) {
-    scene->skeletons.clear();
-
-    scene->active_transform.clear();
-    scene->bind_transform.clear();
-
-    scene->active_world_transform.clear();
-    scene->bind_world_transform.clear();
-
-    scene->inverse_bind_transform.clear();
-    scene->joints.clear();
-
-    scene->model_transforms.clear();
-  }
-
+  /**
+   * This code is responsible for updating the bone transforms. _Only useful in
+   * visualizing bones_
+   *
+   * However this code provides a pattern that is used throughout the code base.
+   *   1. Access the skeleton.
+   *   2. Loop through `skeleton.size`. If we want to include root start loop
+   *      with 0, else with 1.
+   *   3. Using the index and `skeleton.joint_start` start accessing the joints.
+   *   4. To access the transform, add `skeleton.transform_start` and
+   * `joint.id`.
+   * */
   static void updateTransforms(std::unique_ptr<core::Scene> &scene, int id) {
     auto skeleton = scene->skeletons[id];
     int start = skeleton.transform_start;
@@ -86,7 +99,6 @@ struct SkeletonTransformation {
           glm::mat4_cast(scene->active_transform[start + active_joint.parent]
                              .lookAt(lookdir, zAxis)
                              .rotation);
-
       auto scaleFactor =
           joint_world_transform.scale *
           glm::length(
@@ -102,7 +114,15 @@ struct SkeletonTransformation {
     }
   }
 
-  static void updateWorldTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+  /**
+   * Updates the world transforms. This is required by retargeting function.
+   * After successful retargeting, it is necessary to apply the local transforms
+   * to the world transform.
+   *
+   * Notice how the access pattern is same as above.
+   * */
+  static void updateWorldTransforms(std::unique_ptr<core::Scene> &scene,
+                                    int id) {
     auto tar_skeleton = scene->skeletons[id];
     const core::Transform joint_local_transform =
         scene->active_transform[tar_skeleton.transform_start];
@@ -127,11 +147,15 @@ struct SkeletonTransformation {
           scene->active_world_transform[tar_skeleton.transform_start +
                                         active.parent];
 
-      joint_world_transform = joint_local_transform * parent_world_transform;
+      joint_world_transform = parent_world_transform * joint_local_transform;
     }
   }
 
-  static void updateActiveTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+  /**
+   * This code gets used in the Inverse kinematics module. It is necessary part
+   * for that block */
+  static void updateActiveTransforms(std::unique_ptr<core::Scene> &scene,
+                                     int id) {
     auto tar_skeleton = scene->skeletons[id];
     core::Transform &joint_local_transform =
         scene->active_transform[tar_skeleton.transform_start];
@@ -155,14 +179,16 @@ struct SkeletonTransformation {
       core::Transform parent_world_transform =
           scene->active_world_transform[tar_skeleton.transform_start +
                                         active.parent];
-      glm::mat4 parent_transform = glm::inverse(parent_world_transform.toMat4());
+      glm::mat4 parent_transform =
+          glm::inverse(parent_world_transform.toMat4());
       glm::mat4 world_transform = joint_world_transform.toMat4();
       glm::mat4 local = parent_transform * world_transform;
       joint_local_transform = core::Transform(local);
     }
   }
 
-  static void computeWorldTransforms(std::unique_ptr<core::Scene> &scene, int id) {
+  static void computeWorldTransforms(std::unique_ptr<core::Scene> &scene,
+                                     int id) {
     auto tar_skeleton = scene->skeletons[id];
     for (int idx = 1; idx < tar_skeleton.size; idx++) {
       int joint_id = tar_skeleton.joint_start + idx;
@@ -176,10 +202,9 @@ struct SkeletonTransformation {
           scene->active_world_transform[tar_skeleton.transform_start +
                                         active.parent];
 
-      joint_world_transform = joint_world_transform * parent_world_transform;
+      joint_world_transform = parent_world_transform * joint_world_transform;
     }
   }
-
 };
 } // namespace anim
 

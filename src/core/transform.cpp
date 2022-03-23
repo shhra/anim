@@ -33,16 +33,12 @@ glm::mat4 Transform::toMat4() const {
          glm::scale(glm::mat4(1.0), this->scale);
 }
 
-Transform Transform::operator*(const Transform parent) {
-  auto r = parent.rotation * this->rotation;
-  auto s = this->scale * parent.scale;
-  // Understand this operation and why is it done.
-  auto t = parent.rotation * this->position;
-  t = parent.scale * t;
-  t += parent.position;
-
-  // std::cout << "MULT:::: "<< glm::to_string(r) << "\n";
-
+Transform Transform::operator*(const Transform child) const {
+  auto r = this->rotation * child.rotation;
+  auto s = this->scale * child.scale;
+  auto t = this->rotation * child.position;
+  t = this->scale * t;
+  t += this->position;
   return Transform(t, r, s);
 }
 

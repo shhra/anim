@@ -19,8 +19,8 @@ struct Frame {
 };
 
 struct Animation {
-  int start; // Transforms.
-  int end;   // Transforms.
+  int start; // Frame offset to access the start of animation in `frame_transforms`
+  int end;   // Specifies where the frame ends.
   float frame_time;
   std::vector<Frame> frames;
   Animation() : start(0), end(0), frames({}), frame_time(0.0f) {}

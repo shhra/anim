@@ -19,7 +19,7 @@ Joint::Joint(std::string bone_name, std::size_t bone_id,
 }
 
 void Joint::setWorldTransform(const Transform &parent) {
-  worldTransform = this->transform * parent;
+  worldTransform = parent * this->transform;
 }
 
 void Joint::setLocalTransform(Transform &parent) {

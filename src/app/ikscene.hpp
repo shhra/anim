@@ -163,7 +163,7 @@ private:
     scene->active_transform.push_back(joint_transform);
 
     auto joint_world_transform =
-        joint_transform * scene->active_world_transform[0];
+        scene->active_world_transform[0] * joint_transform;
 
     scene->active_world_transform.push_back(joint_world_transform);
 
@@ -195,7 +195,7 @@ private:
     scene->active_transform.push_back(joint_transform);
 
     auto joint_world_transform =
-        joint_transform * scene->active_world_transform[1];
+        scene->active_world_transform[1] * joint_transform;
 
     scene->active_world_transform.push_back(joint_world_transform);
 
@@ -227,7 +227,7 @@ private:
     scene->active_transform.push_back(joint_transform);
 
     auto joint_world_transform =
-        joint_transform * scene->active_world_transform[2];
+        scene->active_world_transform[2] * joint_transform;
 
     scene->active_world_transform.push_back(joint_world_transform);
 

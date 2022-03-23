@@ -21,3 +21,4 @@ compile_commands.json
 *.fbx
 *.bvh
 *.zip
+src/app/demoscene.hpp

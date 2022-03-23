@@ -30,9 +30,9 @@ public:
     Frame f = previous;
     f.setValue(0, f[0]);
     for (int i = 1; i < transforms.size(); i++) {
-      // This transform is the active frame. Therefore it has to be parent for
-      // the previous frame. '*' operator requires passing parent on RHS.
-      auto res = f[i] * this->transforms[i];
+      // This transform is the active frame. Therefore, it has to be parent for
+      // the previous frame.
+      auto res = this->transforms[i] * f[i];
       f.setValue(i, res);
     }
     return f;

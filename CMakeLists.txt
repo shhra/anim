@@ -64,7 +64,6 @@ add_executable(visualization
   src/animation/bvhimporter.cpp
   src/animation/loader.hpp
   src/animation/retargeter.hpp
-  src/animation/retargeter.cpp
 
   src/ui/mapper.hpp
   ${IMGUI_SOURCES})

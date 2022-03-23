@@ -63,17 +63,17 @@ struct Transform {
   //! Add the rotation to the transform
   inline void rotate(glm::quat &rotation) { this->rotation *= rotation; }
 
-  //! Let the unit vector in the local x direction
+  //! The unit vector in the local X-direction
   inline glm::vec3 localX() {
     return this->rotation * glm::vec3(1.0, 0.0, 0.0);
   }
 
-  //! Let the unit vector in the local x direction
+  //! The unit vector in the local Y-direction
   inline glm::vec3 localY() {
     return this->rotation * glm::vec3(0.0, 1.0, 0.0);
   }
 
-  //! Let the unit vector in the local x direction
+  //! The unit vector in the local Z-direction
   inline glm::vec3 localZ() {
     return this->rotation * glm::vec3(0.0, 0.0, 1.0);
   }
@@ -83,7 +83,7 @@ struct Transform {
   glm::mat4 toMat4() const;
 
   //! This multiplies with the another transform b and return a new transform.
-  Transform operator*(const Transform parent);
+  Transform operator*(const Transform child) const;
 };
 } // namespace core
 

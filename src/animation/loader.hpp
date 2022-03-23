@@ -109,8 +109,8 @@ struct AnimationLoader {
           scene->active_world_transform[transform_idx + ac_joint.id];
 
       active_world_transform =
-          scene->active_transform[transform_idx + ac_joint.id] *
-          scene->active_world_transform[transform_idx + ac_joint.parent];
+          scene->active_world_transform[transform_idx + ac_joint.parent] *
+          scene->active_transform[transform_idx + ac_joint.id];
 
       core::Transform &bind_world_transform =
           scene->bind_world_transform[transform_idx + ac_joint.id];
@@ -163,8 +163,8 @@ struct AnimationLoader {
           scene->active_world_transform[transform_idx + ac_joint.id];
 
       active_world_transform =
-          scene->active_transform[transform_idx + ac_joint.id] *
-          scene->active_world_transform[transform_idx + ac_joint.parent];
+          scene->active_world_transform[transform_idx + ac_joint.parent] *
+          scene->active_transform[transform_idx + ac_joint.id];
     }
   }
 };
