@@ -25,8 +25,8 @@ int main() {
                 std::filesystem::path("../src/vis.frag").string().c_str());
   shader.use();
 
-  std::unique_ptr<app::Scene> app = std::make_unique<app::DemoScene>();
-  // std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
+  // std::unique_ptr<app::Scene> app = std::make_unique<app::DemoScene>();
+  std::unique_ptr<app::Scene> app = std::make_unique<app::IKScene>();
   // std::unique_ptr<app::Scene> app = std::make_unique<app::SimpleScene>();
 
   core::Input input(app->getCam(), 640.f, 360.0f);

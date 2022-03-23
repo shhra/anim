@@ -152,8 +152,8 @@ struct SkeletonTransformation {
   }
 
   /**
-   * This code gets used in the Inverse kinematics module. It is necessary part
-   * for that block */
+   * I created it for a reason.
+   * */
   static void updateActiveTransforms(std::unique_ptr<core::Scene> &scene,
                                      int id) {
     auto tar_skeleton = scene->skeletons[id];
@@ -187,6 +187,9 @@ struct SkeletonTransformation {
     }
   }
 
+  /**
+   * I created it for a reason.
+   * */
   static void computeWorldTransforms(std::unique_ptr<core::Scene> &scene,
                                      int id) {
     auto tar_skeleton = scene->skeletons[id];
